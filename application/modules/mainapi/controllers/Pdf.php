@@ -24,8 +24,6 @@ class Pdf extends MX_Controller {
         $userMgr = $this->input->post("userpostMgr");
         $dateMgr = $this->input->post("datetimepostMgr");
         $memo_pur = $this->input->post("memo_pur");
-        $userpost_pur = $this->input->post("userpost_pur");
-        $datetime_pur = $this->input->post("datetime_pur");
 
         $userSend = $this->input->post("userSend");
         $ecodeSend = $this->input->post("ecodeSend");
@@ -191,6 +189,11 @@ class Pdf extends MX_Controller {
                 $currentY = $pdf->GetY(); // อัพเดทค่า Y ใหม่
             }
 
+            $itemname = $rs["name"];
+            $columnWidth = $columnWidths[2];
+            // กำหนดขนาดของเซลล์ตามความยาวของข้อความ
+            $ch = $pdf->getStringHeight($columnWidth, $itemname)+2;
+
             $key = $key + 1;
             $pdf->MultiCell($columnWidths[0], $ch, $key, 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[1], $ch, $rs["itemid"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
@@ -212,7 +215,7 @@ class Pdf extends MX_Controller {
         $filePath = 'uploads/Document-'.$purchid.'.pdf';
         file_put_contents($filePath, $pdfOutput);
 
-       $this->email->sendto_vendor($formno , $filePath , $email);
+       $this->email->sendto_vendor($formno , $filePath);
         $arSaveLog = array(
             "sp_formno" => $formno,
             "sp_pono" => $purchid,
@@ -247,8 +250,6 @@ class Pdf extends MX_Controller {
         $userMgr = $this->input->post("userpostMgr");
         $dateMgr = $this->input->post("datetimepostMgr");
         $memo_pur = $this->input->post("memo_pur");
-        $userpost_pur = $this->input->post("userpost_pur");
-        $datetime_pur = $this->input->post("datetime_pur");
 
         $userSend = $this->input->post("userSend");
         $ecodeSend = $this->input->post("ecodeSend");
@@ -303,8 +304,6 @@ class Pdf extends MX_Controller {
         $this->slc_amtintext = $slc_amtintext;
         $this->amount = $amount;
         $this->memo_pur = $memo_pur;
-        $this->userpost_pur = $userpost_pur;
-        $this->datetime_pur = $datetime_pur;
 
         $this->deliveryname = $deliveryname;
         $this->deliveryaddress = $deliveryaddress;
@@ -340,8 +339,6 @@ class Pdf extends MX_Controller {
             $this->slc_amtintext , 
             $this->amount ,
             $this->memo_pur ,
-            $this->userpost_pur ,
-            $this->datetime_pur ,
 
             $this->deliveryname ,
             $this->deliveryaddress,
@@ -418,6 +415,12 @@ class Pdf extends MX_Controller {
                 $currentY = $pdf->GetY(); // อัพเดทค่า Y ใหม่
             }
 
+            // กำหนดความกว้างของเซลล์ตามความยาวของข้อความ
+            $itemname = $rs["name"];
+            $columnWidth = $columnWidths[2];
+            // กำหนดขนาดของเซลล์ตามความยาวของข้อความ
+            $ch = $pdf->getStringHeight($columnWidth, $itemname)+2;
+
             $key = $key + 1;
             $pdf->MultiCell($columnWidths[0], $ch, $key, 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[1], $ch, $rs["itemid"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
@@ -461,8 +464,6 @@ class MYPDF extends TCPDF {
     public $slc_amtintext;
     public $amount;
     public $memo_pur;
-    public $userpost_pur;
-    public $datetime_pur;
 
     public $deliveryname;
     public $deliveryaddress;
@@ -485,7 +486,7 @@ class MYPDF extends TCPDF {
     // Constructor to initialize properties
     public function __construct($datetimereq , $userrequest , $executive , 
     $userMgr , $dateMgr , $salesorderbalance , $sumlinedisc  , 
-    $taxText , $sumtax , $slc_amtintext , $amount , $memo_pur , $userpost_pur , $datetime_pur , $deliveryname ,
+    $taxText , $sumtax , $slc_amtintext , $amount , $memo_pur , $deliveryname ,
     $deliveryaddress , $taxid , $vendid , $vendname , $vendaddress , $vendphone ,
     $vendfax , $purchid , $bpc_documentdate ,$payment , $deliverydate , $description , $bpc_purchasereqno ,$current_page , $total_pages) {
         parent::__construct();
@@ -501,8 +502,6 @@ class MYPDF extends TCPDF {
         $this->slc_amtintext = $slc_amtintext;
         $this->amount = $amount;
         $this->memo_pur = $memo_pur;
-        $this->userpost_pur = $userpost_pur;
-        $this->datetime_pur = $datetime_pur;
 
         $this->deliveryname = $deliveryname;
         $this->deliveryaddress = $deliveryaddress;
@@ -667,30 +666,30 @@ class MYPDF extends TCPDF {
         //section Footer 3
 
         //section Footer 4
-        $executiveUser = $this->userMgr;
-        $executiveDate = '';
-        $count = 0;
-        foreach ($this->executive as $rs) {
-            if(empty($executiveUser)){
-                $executiveUser .= $rs['apv_approve_user'];
-            }else{
-                $executiveUser .= ' , '.$rs['apv_approve_user'];
-            }
-            $count++;
-            if ($count % 2 == 0) {
-                $executiveUser .= "\n";
-            }
-            $executiveDate = $rs['apv_approve_datetime'];
-        }
-        // ถ้ามีค่านอกเหนือจากที่หาร 2 ลงตัว ให้เพิ่มบรรทัดใหม่
-        if ($count % 2 != 0) {
-            $executiveUser .= "\n";
-        }
+        // $executiveUser = $this->userMgr;
+        // $executiveDate = '';
+        // $count = 0;
+        // foreach ($this->executive as $rs) {
+        //     if(empty($executiveUser)){
+        //         $executiveUser .= $rs['apv_approve_user'];
+        //     }else{
+        //         $executiveUser .= ' , '.$rs['apv_approve_user'];
+        //     }
+        //     $count++;
+        //     if ($count % 2 == 0) {
+        //         $executiveUser .= "\n";
+        //     }
+        //     $executiveDate = $rs['apv_approve_datetime'];
+        // }
+        // // ถ้ามีค่านอกเหนือจากที่หาร 2 ลงตัว ให้เพิ่มบรรทัดใหม่
+        // if ($count % 2 != 0) {
+        //     $executiveUser .= "\n";
+        // }
 
         // กำหนดข้อความ
         $vendorText2 = '____________________';
-        $userReqText2 = $this->userrequest;
-        $executeText2 = $executiveUser;
+        // $userReqText2 = $this->userrequest;
+        // $executeText2 = $executiveUser;
 
         // ตั้งค่าฟอนต์
         $this->SetFont('thsarabunb', '', 12);
@@ -707,8 +706,8 @@ class MYPDF extends TCPDF {
         //section Footer 5
         // กำหนดข้อความ
         $vendorText3 = 'วันที่ / Date :_____/_____/_____';
-        $userReqText3 = 'วันที่ / Date : '.$this->datetimereq;
-        $executeText3 = 'วันที่ / Date : '.$executiveDate;
+        // $userReqText3 = 'วันที่ / Date : '.$this->datetimereq;
+        // $executeText3 = 'วันที่ / Date : '.$executiveDate;
 
         // ตั้งค่าฟอนต์
         $this->SetFont('thsarabunb', '', 12);

@@ -5856,7 +5856,7 @@ class Email_model extends CI_Model {
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
-    public function sendto_vendor($formno , $filePath , $venderEmail)
+    public function sendto_vendor($formno , $filePath)
     {
         if($_SERVER['HTTP_HOST'] == "localhost"){
             $adminLink = "http://localhost:8080/viewdata/$formno";
@@ -5894,30 +5894,38 @@ class Email_model extends CI_Model {
         if($vendEmail != ""){
             $to = conEmailString($vendEmail);
         }else{
-            $to = "";
+            $to = [];
         }
 
 
-        $optionCc = getemail_byecode($emaildata->m_ecode);//ผู้ขอซื้อ
-        foreach($optionCc->result_array() as $rs){
-            $cc[] = $rs['memberemail'];
-            $ecodeccAr[] = $rs['ecode'];
+        $optionCC = getemail_byecode($emaildata->m_ecode);//ผู้ขอซื้อ
+        if($optionCC->num_rows() > 0){
+            foreach($optionCC->result_array() as $rs){
+                $cc[] = $rs['memberemail'];
+                $ecodeccAr[] = $rs['ecode'];
+            }
         }
+
 
         $optionCC2 = getemail_byecode($emaildata->m_ecodepost);//ผู้ร้องขอ
-        foreach($optionCC2->result_array() as $rs){
-            array_push($cc , $rs['memberemail']);
-            array_push($ecodeccAr , $rs['ecode']);
+        if($optionCC2->num_rows() > 0){
+            foreach($optionCC2->result_array() as $rs){
+                array_push($cc , $rs['memberemail']);
+                array_push($ecodeccAr , $rs['ecode']);
+            }
         }
+
 
         $optionCC3 = getemail_bydeptcode("1004");//ดึงเอาเฉพาะ Email ของจัดซื้อขึ้นมา
-        foreach($optionCC3->result_array() as $rs){
-            array_push($cc , $rs['memberemail']);
-            array_push($ecodeccAr , $rs['ecode']);
+        if($optionCC3->num_rows() > 0){
+            foreach($optionCC3->result_array() as $rs){
+                array_push($cc , $rs['memberemail']);
+                array_push($ecodeccAr , $rs['ecode']);
+            }
         }
 
 
-        // $to = array_unique($to);
+        $to = array_unique($to);
         $cc = array_unique($cc);
         $ecodeccAr = array_unique($ecodeccAr);
 

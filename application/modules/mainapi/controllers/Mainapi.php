@@ -201,8 +201,12 @@ class Mainapi extends MX_Controller {
 
     public function testcode()
     {
-        print_r(getVendEmail('th-2223' , 'sln'));
-        print_r(conEmailString(getVendEmail('th-2223' , 'sln')));
+        $optionCc = getemail_byecode('M0085');//ผู้ขอซื้อ
+        foreach($optionCc->result_array() as $rs){
+            $cc[] = $rs['memberemail'];
+            $ecodeccAr[] = $rs['ecode'];
+        }
+        print_r($cc);
     }
 
     public function getdataDetail()

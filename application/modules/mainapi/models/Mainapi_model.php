@@ -506,7 +506,7 @@ class Mainapi_model extends CI_Model {
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
             // check formcode
-            $sqlcheckformcode = $this->db->query("SELECT m_prcode FROM main WHERE m_prno = '$oldprno'");
+            $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno FROM main WHERE m_prno = '$oldprno'");
             if($sqlcheckformcode->row()->m_prcode == $prcode){
                 $arsaveHead = array(
                     "m_dataareaid" => $dataareaid,
@@ -562,10 +562,16 @@ class Mainapi_model extends CI_Model {
             $this->db->delete("details");
             $itemdata = json_decode($this->input->post("itemdata") , true);
 
+            if($sqlcheckformcode->row()->m_prcode == $prcode){
+                $dpr = $sqlcheckformcode->row()->m_prno;
+            }else{
+                $dpr = $prno;
+            }
             foreach($itemdata as $item){
                 //code
                 $arsaveDetail = array(
                     "d_m_formno" => $formno,
+                    "d_m_prno" => $dpr,
                     "d_itemid" => $item['itemid'],
                     "d_itemname" => $item['itemname'],
                     "d_itemgroupid" => $item['itemgroupid'],
