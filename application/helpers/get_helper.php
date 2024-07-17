@@ -305,6 +305,23 @@ function conDateFromDb($date)
     
 }
 
+function getItemDetail($formno)
+{
+    if(!empty($formno)){
+        $sql = getfn()->db->query("SELECT
+        d_itemid
+        FROM details
+        WHERE d_m_formno = ? ORDER BY d_autoid ASC
+        " , array($formno));
+        $itemid = [];
+        foreach($sql->result() as $rs){
+            $itemid[] = $rs->d_itemid;
+        }
+        $itemidString = implode(' , ', $itemid);
+        return $itemidString;
+    }
+}
+
 
 
 

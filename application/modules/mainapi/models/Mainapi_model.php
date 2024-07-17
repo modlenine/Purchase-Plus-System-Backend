@@ -807,32 +807,38 @@ class Mainapi_model extends CI_Model {
             ),
             array('db' => 'm_formno', 'dt' => 3 ,
                 'formatter' => function($d , $row){
+                    $result = getItemDetail($d);
+                    return $result;
+                }
+            ),
+            array('db' => 'm_formno', 'dt' => 4 ,
+                'formatter' => function($d , $row){
                     return number_format(sumPriceByFormno($d) , 3);
                 }
             ),
-            array('db' => 'm_department', 'dt' => 4 ,
+            array('db' => 'm_department', 'dt' => 5 ,
                 'formatter' => function($d , $row){
                     return $d;
                 }
             ),
-            array('db' => 'm_ecode', 'dt' => 5 ,
+            array('db' => 'm_ecode', 'dt' => 6 ,
                 'formatter' => function($d , $row){
                     return $d;
                 }
             ),
-            array('db' => 'm_date_req', 'dt' => 6 ,
+            array('db' => 'm_date_req', 'dt' => 7 ,
                 'formatter' => function($d , $row){
                     return condate_fromdb($d);
                 }
             ),
-            array('db' => 'm_vendid', 'dt' => 7),
-            array('db' => 'm_vendname', 'dt' => 8),
-            array('db' => 'm_date_delivery', 'dt' => 9 ,
+            array('db' => 'm_vendid', 'dt' => 8),
+            array('db' => 'm_vendname', 'dt' => 9),
+            array('db' => 'm_date_delivery', 'dt' => 10 ,
                 'formatter' => function($d , $row){
                     return condate_fromdb($d);
                 }
             ),
-            array('db' => 'm_status', 'dt' => 10 ,
+            array('db' => 'm_status', 'dt' => 11 ,
                 'formatter' => function($d , $row){
                     $color = "";
                     if($d == "Wait Send Data"){//สีเหลือง
