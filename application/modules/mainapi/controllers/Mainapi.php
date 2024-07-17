@@ -179,7 +179,7 @@ class Mainapi extends MX_Controller {
 
     public function getdata_po()
     {
-        if($this->input->post("areaid") == "sln"){
+        if($this->input->post("areaid") == "sln" || $this->input->post("areaid") == "ca"){
             $this->mainapi->getData_po_sln();
         }
     }

@@ -1837,7 +1837,7 @@ class Mainapi_model extends CI_Model {
 
     public function getData_po_sln()
     {
-        if($this->input->post("areaid") != "" && $this->input->post("pono") != "" && $this->input->post("department")){
+        if($this->input->post("areaid") != "" && $this->input->post("pono") != "" && $this->input->post("department") != ""){
 
             $areaid = $this->input->post("areaid");
             $pono = $this->input->post("pono");
