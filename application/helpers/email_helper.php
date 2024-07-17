@@ -254,11 +254,17 @@ function getemail_managerbydeptcode($deptcode , $areaid)
                 ");
             }
 
+        }else if($deptcode == 1001){
+            email()->db2 = email()->load->database('saleecolour', TRUE);
+            $sql = email()->db2->query("SELECT
+            memberemail , ecode
+            FROM member WHERE DeptCode = '1004' AND posi >= 65 AND resigned = 0
+            ");
         }else{
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
             memberemail , ecode
-            FROM member WHERE DeptCode = '$deptcode' AND posi IN (65 , 75) AND resigned = 0
+            FROM member WHERE DeptCode = '$deptcode' AND posi IN (65 , 75 ) AND resigned = 0
             ");
         }
 

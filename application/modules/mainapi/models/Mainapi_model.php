@@ -126,13 +126,21 @@ class Mainapi_model extends CI_Model {
         $received_data = json_decode(file_get_contents("php://input"));
         if($received_data->action == "getUserEcode"){
             $department = $received_data->department;
+
+            $condition = "";
+            if($department == "1001"){
+                $condition = "AND DeptCode IN ('1001' , '1004')";
+            }else{
+                $condition = "AND DeptCode = '$department'";
+            }
+
             $sql = $this->db_member->query("SELECT 
             Fname , 
             Lname , 
             ecode 
             FROM member 
             WHERE resigned = 0 
-            AND DeptCode = '$department'");
+            $condition ORDER BY Fname ASC");
 
             $output = array(
                 "msg" => "ดึงข้อมูลผู้ขอซื้อสำเร็จ",
