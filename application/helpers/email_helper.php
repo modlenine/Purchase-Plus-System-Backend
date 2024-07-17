@@ -260,6 +260,12 @@ function getemail_managerbydeptcode($deptcode , $areaid)
             memberemail , ecode
             FROM member WHERE DeptCode = '1004' AND posi >= 65 AND resigned = 0
             ");
+        }else if($deptcode == 1008 || $deptcode == 1014 || $deptcode == 1015){
+            email()->db2 = email()->load->database('saleecolour', TRUE);
+            $sql = email()->db2->query("SELECT
+            memberemail , ecode
+            FROM member WHERE ecode = 'M0112'
+            ");
         }else{
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
