@@ -860,6 +860,8 @@ class Mainapi_model extends CI_Model {
                         $color = "color:#0066FF;";
                     }else if($d == "PO confirmed"){
                         $color = "color:#00CC00;";
+                    }else if($d == "User Cancel"){
+                        $color = "color:#CC0000;";
                     }else{
                         $color = "color:#2F4F4F;";
                     }
@@ -1964,10 +1966,12 @@ class Mainapi_model extends CI_Model {
             discamount ,
             lineamounttax , 
             name,
-            dataareaid ,
-            bpc_discount
-            FROM VendPurchOrderTrans 
-            WHERE dataareaid = ? AND OrigPurchId = ? AND purchaseorderid = ?
+            vendpurchordertrans.dataareaid ,
+            bpc_discount,
+            inventdim.inventbatchid
+            FROM VendPurchOrderTrans
+            LEFT JOIN inventdim ON vendpurchordertrans.inventdimid = inventdim.inventdimid
+            WHERE vendpurchordertrans.dataareaid = ? AND OrigPurchId = ? AND purchaseorderid = ?
             ORDER BY linenum ASC
             " , array($areaid , $pono , $purchaseorderid));
 

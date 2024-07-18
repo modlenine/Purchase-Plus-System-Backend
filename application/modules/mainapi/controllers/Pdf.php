@@ -189,7 +189,7 @@ class Pdf extends MX_Controller {
                 $currentY = $pdf->GetY(); // อัพเดทค่า Y ใหม่
             }
 
-            $itemname = $rs["name"];
+            $itemname = $rs["name"]."\n".$rs['inventbatchid'];
             $columnWidth = $columnWidths[2];
             // กำหนดขนาดของเซลล์ตามความยาวของข้อความ
             $ch = $pdf->getStringHeight($columnWidth, $itemname)+2;
@@ -197,7 +197,7 @@ class Pdf extends MX_Controller {
             $key = $key + 1;
             $pdf->MultiCell($columnWidths[0], $ch, $key, 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[1], $ch, $rs["itemid"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
-            $pdf->MultiCell($columnWidths[2], $ch, $rs["name"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
+            $pdf->MultiCell($columnWidths[2], $ch, $itemname , 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[3], $ch, number_format($rs["qty"], 3).' '.$rs["purchunit"], 0, 'R', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[4], $ch, number_format($rs["purchprice"], 3), 0, 'R', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[5], $ch, '', 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
@@ -416,7 +416,7 @@ class Pdf extends MX_Controller {
             }
 
             // กำหนดความกว้างของเซลล์ตามความยาวของข้อความ
-            $itemname = $rs["name"];
+            $itemname = $rs["name"]."\n".$rs['inventbatchid'];
             $columnWidth = $columnWidths[2];
             // กำหนดขนาดของเซลล์ตามความยาวของข้อความ
             $ch = $pdf->getStringHeight($columnWidth, $itemname)+2;
@@ -424,7 +424,7 @@ class Pdf extends MX_Controller {
             $key = $key + 1;
             $pdf->MultiCell($columnWidths[0], $ch, $key, 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[1], $ch, $rs["itemid"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
-            $pdf->MultiCell($columnWidths[2], $ch, $rs["name"], 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
+            $pdf->MultiCell($columnWidths[2], $ch, $itemname , 0, 'L', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[3], $ch, number_format($rs["qty"], 3).' '.$rs["purchunit"], 0, 'R', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[4], $ch, number_format($rs["purchprice"], 3), 0, 'R', 0, 0, '', '', true , 0, false, true, $ch, 'M');
             $pdf->MultiCell($columnWidths[5], $ch, '', 0, 'C', 0, 0, '', '', true , 0, false, true, $ch, 'M');
