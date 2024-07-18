@@ -1957,22 +1957,22 @@ class Mainapi_model extends CI_Model {
             $purchaseorderid = $this->input->post("purchaseorderid");
 
             $sql = $this->db_mssql->query("SELECT 
-            origpurchid , 
-            itemid , 
-            qty , 
-            purchunit ,
-            purchprice , 
-            lineamount , 
-            discamount ,
-            lineamounttax , 
-            name,
-            vendpurchordertrans.dataareaid ,
-            bpc_discount,
-            inventdim.inventbatchid
-            FROM VendPurchOrderTrans
-            LEFT JOIN inventdim ON vendpurchordertrans.inventdimid = inventdim.inventdimid
-            WHERE vendpurchordertrans.dataareaid = ? AND OrigPurchId = ? AND purchaseorderid = ?
-            ORDER BY linenum ASC
+            a.origpurchid , 
+            a.itemid , 
+            a.qty , 
+            a.purchunit ,
+            a.purchprice , 
+            a.lineamount , 
+            a.discamount ,
+            a.lineamounttax , 
+            a.name,
+            a.dataareaid ,
+            a.bpc_discount,
+            b.inventbatchid , *
+            FROM VendPurchOrderTrans a
+            LEFT JOIN inventdim b ON a.inventdimid = b.inventdimid AND a.dataareaid = b.dataareaid
+            WHERE a.dataareaid = ? AND a.OrigPurchId = ? AND a.purchaseorderid = ?
+            ORDER BY a.linenum ASC
             " , array($areaid , $pono , $purchaseorderid));
 
             $output = array(
