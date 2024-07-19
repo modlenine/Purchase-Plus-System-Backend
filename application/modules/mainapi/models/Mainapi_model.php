@@ -453,8 +453,8 @@ class Mainapi_model extends CI_Model {
                 $this->db->insert("details" , $arsaveDetail);
             }
 
-            if(!empty($_FILES['ip-cpr-file']['name'][0])){
-                $fileInput = "ip-cpr-file";
+            if(!empty($_FILES['ip-cpre-file']['name'][0])){
+                $fileInput = "ip-cpre-file";
                 uploadFile($fileInput , $formno);
             }
 
