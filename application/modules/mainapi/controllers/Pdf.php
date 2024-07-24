@@ -399,7 +399,7 @@ class Pdf extends MX_Controller {
         $pdf->SetFont('thsarabunb', '', 12);
         // $pdf->MultiCell(200, 90,'', 1, 'L', 0, 0, '' ,'', true);
         $pageHeight = $pdf->getPageHeight();
-        $bottomMargin = 110; // ขอบล่างของหน้า
+        $bottomMargin = 120; // ขอบล่างของหน้า
         $currentY = $pdf->GetY();
 
         $columnWidths = [10, 30, 60, 25, 25, 20, 30];
@@ -591,7 +591,7 @@ class MYPDF extends TCPDF {
     public function Footer()
     {
         // Position at 15 mm from bottom
-        $this->SetY(-110);
+        $this->SetY(-120);
 
         // set cell padding
         $this->setCellPaddings(1, 1, 1, 1);
