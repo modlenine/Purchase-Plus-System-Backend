@@ -130,6 +130,9 @@ class Email_model extends CI_Model {
             $to[] = $rs['memberemail'];
             $ecodeAr[] = $rs['ecode'];
         }
+        if($emaildata->m_invest_ecodefix == "M0140"){//เช็คผู้ตรวจสอบฝ่าย Engineer
+            array_push($to , "engineer@saleecolour.com");
+        }
 
 
         $optionCc = getemail_byecode($emaildata->m_ecode);//ผู้ขอซื้อ
