@@ -828,7 +828,7 @@ class MYPDF extends TCPDF {
     public function testfooter()
     {
         // Position at 15 mm from bottom
-        $this->SetY(-110);
+        $this->SetY(-120);
 
         // set cell padding
         $this->setCellPaddings(1, 1, 1, 1);

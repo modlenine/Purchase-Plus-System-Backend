@@ -51,11 +51,34 @@ class Mainapi_model extends CI_Model {
             $areaid = $received_data->areaid;
             $vendid = $received_data->vendid;
             $sql = $this->db_mssql->query("SELECT
-            accountnum,
-            name,
-            address,
-            paymtermid
-            FROM vendtable WHERE accountnum LIKE '%$vendid%' AND dataareaid = '$areaid'
+                a.accountnum AS accountnum,
+                a.name AS name,
+                a.address AS address,
+                a.paymtermid AS paymtermid,
+                a.currency AS currency,
+                b.txt AS currencytxt,
+                b.currencycodeiso AS currencycodeiso,
+                c.exchrate,
+                c.fromdate
+            FROM 
+                vendtable a
+            INNER JOIN 
+                currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
+            CROSS APPLY (
+                SELECT TOP 1 
+                    c.exchrate,
+                    c.fromdate
+                FROM 
+                    exchrates c 
+                WHERE 
+                    c.currencycode = b.currencycode 
+                    AND c.dataareaid = b.dataareaid
+                ORDER BY 
+                    c.fromdate DESC
+            ) c
+            WHERE 
+                a.accountnum LIKE '%$vendid%' 
+                AND a.dataareaid = '$areaid';
             ");
 
             $output = array(
@@ -236,6 +259,8 @@ class Mainapi_model extends CI_Model {
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
             $paymtermid = $this->input->post("paymtermid");
+            $currency = $this->input->post("currency");
+            $currencyrate = $this->input->post("currencyrate");
             $datetimesystem = date("Y-m-d H:i:s");
             $datetimereq = $this->input->post("datetimereq");
             $datetimedelivery = $this->input->post("datetimedelivery");
@@ -260,6 +285,8 @@ class Mainapi_model extends CI_Model {
                 "m_vendid" => $vendid,
                 "m_vendname" => $vendname,
                 "m_paymtermid" => $paymtermid,
+                "m_currency" => $currency,
+                "m_currencyrate" => $currencyrate,
                 "m_datetime_create" => date("Y-m-d H:i:s"),
                 "m_date_req" => condate_todb($datetimereq),
                 "m_date_delivery" => condate_todb($datetimedelivery),
@@ -353,6 +380,8 @@ class Mainapi_model extends CI_Model {
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
             $paymtermid = $this->input->post("paymtermid");
+            $currency = $this->input->post("currency");
+            $currencyrate = $this->input->post("currencyrate");
             $datetimesystem = date("Y-m-d H:i:s");
             $datetimereq = $this->input->post("datetimereq");
             $datetimedelivery = $this->input->post("datetimedelivery");
@@ -365,31 +394,64 @@ class Mainapi_model extends CI_Model {
 
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
+
             // check formcode
-            $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno FROM main WHERE m_prno = '$oldprno'");
-            if($sqlcheckformcode->row()->m_prcode == $prcode){
-                $arsaveHead = array(
-                    "m_dataareaid" => $dataareaid,
-                    "m_costcenter" => $costcenter,
-                    "m_department" => $department,
-                    "m_itemcategory" => $itemcategory,
-                    "m_ecode" => $ecode,
-                    "m_vendid" => $vendid,
-                    "m_vendname" => $vendname,
-                    "m_paymtermid" => $paymtermid,
-                    "m_datetime_create" => date("Y-m-d H:i:s"),
-                    "m_date_req" => condate_todb($datetimereq),
-                    "m_date_delivery" => condate_todb($datetimedelivery),
-                    "m_memo" => $memo ,
-                    "m_status" => "Wait Send Data",
-                    "m_userpost_modify" => $userpost,
-                    "m_ecodepost_modify" => $ecodepost,
-                    "m_datetimepost_modify" => date("Y-m-d H:i:s"),
-                    "m_version_pr" => 1,
-                    "m_version_status" => "active",
-                    "m_invest_ecodefix" => $m_invest_ecodefix
-                );
-            }else{
+            $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
+            // check Data areaid
+            if($sqlcheckformcode->row()->m_dataareaid == $dataareaid){
+                if($sqlcheckformcode->row()->m_prcode == $prcode){
+                    $arsaveHead = array(
+                        "m_dataareaid" => $dataareaid,
+                        "m_costcenter" => $costcenter,
+                        "m_department" => $department,
+                        "m_itemcategory" => $itemcategory,
+                        "m_ecode" => $ecode,
+                        "m_vendid" => $vendid,
+                        "m_vendname" => $vendname,
+                        "m_paymtermid" => $paymtermid,
+                        "m_currency" => $currency,
+                        "m_currencyrate" => $currencyrate,
+                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_date_req" => condate_todb($datetimereq),
+                        "m_date_delivery" => condate_todb($datetimedelivery),
+                        "m_memo" => $memo ,
+                        "m_status" => "Wait Send Data",
+                        "m_userpost_modify" => $userpost,
+                        "m_ecodepost_modify" => $ecodepost,
+                        "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+                        "m_version_pr" => 1,
+                        "m_version_status" => "active",
+                        "m_invest_ecodefix" => $m_invest_ecodefix
+                    );
+                }else{
+                    $arsaveHead = array(
+                        "m_prcode" => $prcode,
+                        "m_prno" => $prno,
+                        "m_dataareaid" => $dataareaid,
+                        "m_plantype" => $plantype,
+                        "m_itemcategory" => $itemcategory,
+                        "m_costcenter" => $costcenter,
+                        "m_department" => $department,
+                        "m_ecode" => $ecode,
+                        "m_vendid" => $vendid,
+                        "m_vendname" => $vendname,
+                        "m_paymtermid" => $paymtermid,
+                        "m_currency" => $currency,
+                        "m_currencyrate" => $currencyrate,
+                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_date_req" => condate_todb($datetimereq),
+                        "m_date_delivery" => condate_todb($datetimedelivery),
+                        "m_memo" => $memo ,
+                        "m_status" => "Wait Send Data",
+                        "m_userpost_modify" => $userpost,
+                        "m_ecodepost_modify" => $ecodepost,
+                        "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+                        "m_version_pr" => 1,
+                        "m_version_status" => "active",
+                        "m_invest_ecodefix" => $m_invest_ecodefix
+                    );
+                }
+            }else if($sqlcheckformcode->row()->m_dataareaid != $dataareaid){
                 $arsaveHead = array(
                     "m_prcode" => $prcode,
                     "m_prno" => $prno,
@@ -402,6 +464,8 @@ class Mainapi_model extends CI_Model {
                     "m_vendid" => $vendid,
                     "m_vendname" => $vendname,
                     "m_paymtermid" => $paymtermid,
+                    "m_currency" => $currency,
+                    "m_currencyrate" => $currencyrate,
                     "m_datetime_create" => date("Y-m-d H:i:s"),
                     "m_date_req" => condate_todb($datetimereq),
                     "m_date_delivery" => condate_todb($datetimedelivery),
@@ -415,6 +479,56 @@ class Mainapi_model extends CI_Model {
                     "m_invest_ecodefix" => $m_invest_ecodefix
                 );
             }
+
+
+            // if($sqlcheckformcode->row()->m_prcode == $prcode){
+            //     $arsaveHead = array(
+            //         "m_dataareaid" => $dataareaid,
+            //         "m_costcenter" => $costcenter,
+            //         "m_department" => $department,
+            //         "m_itemcategory" => $itemcategory,
+            //         "m_ecode" => $ecode,
+            //         "m_vendid" => $vendid,
+            //         "m_vendname" => $vendname,
+            //         "m_paymtermid" => $paymtermid,
+            //         "m_datetime_create" => date("Y-m-d H:i:s"),
+            //         "m_date_req" => condate_todb($datetimereq),
+            //         "m_date_delivery" => condate_todb($datetimedelivery),
+            //         "m_memo" => $memo ,
+            //         "m_status" => "Wait Send Data",
+            //         "m_userpost_modify" => $userpost,
+            //         "m_ecodepost_modify" => $ecodepost,
+            //         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+            //         "m_version_pr" => 1,
+            //         "m_version_status" => "active",
+            //         "m_invest_ecodefix" => $m_invest_ecodefix
+            //     );
+            // }else{
+            //     $arsaveHead = array(
+            //         "m_prcode" => $prcode,
+            //         "m_prno" => $prno,
+            //         "m_dataareaid" => $dataareaid,
+            //         "m_plantype" => $plantype,
+            //         "m_itemcategory" => $itemcategory,
+            //         "m_costcenter" => $costcenter,
+            //         "m_department" => $department,
+            //         "m_ecode" => $ecode,
+            //         "m_vendid" => $vendid,
+            //         "m_vendname" => $vendname,
+            //         "m_paymtermid" => $paymtermid,
+            //         "m_datetime_create" => date("Y-m-d H:i:s"),
+            //         "m_date_req" => condate_todb($datetimereq),
+            //         "m_date_delivery" => condate_todb($datetimedelivery),
+            //         "m_memo" => $memo ,
+            //         "m_status" => "Wait Send Data",
+            //         "m_userpost_modify" => $userpost,
+            //         "m_ecodepost_modify" => $ecodepost,
+            //         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+            //         "m_version_pr" => 1,
+            //         "m_version_status" => "active",
+            //         "m_invest_ecodefix" => $m_invest_ecodefix
+            //     );
+            // }
 
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arsaveHead);
@@ -513,33 +627,66 @@ class Mainapi_model extends CI_Model {
 
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
+
             // check formcode
-            $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno FROM main WHERE m_prno = '$oldprno'");
-            if($sqlcheckformcode->row()->m_prcode == $prcode){
-                $arsaveHead = array(
-                    "m_dataareaid" => $dataareaid,
-                    "m_costcenter" => $costcenter,
-                    "m_department" => $department,
-                    "m_ecode" => $ecode,
-                    "m_vendid" => $vendid,
-                    "m_vendname" => $vendname,
-                    "m_paymtermid" => $paymtermid,
-                    "m_datetime_create" => date("Y-m-d H:i:s"),
-                    "m_date_req" => condate_todb($datetimereq),
-                    "m_date_delivery" => condate_todb($datetimedelivery),
-                    "m_memo" => $memo ,
-                    "m_userpost" => $userpost,
-                    "m_ecodepost" => $ecodepost,
-                    "m_datetimepost" => date("Y-m-d H:i:s"),
-                    "m_version_pr" => 1,
-                    "m_version_status" => "active"
-                );
-            }else{
+            $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
+            // check Data areaid
+            if($sqlcheckformcode->row()->m_dataareaid == $dataareaid){
+                if($sqlcheckformcode->row()->m_prcode == $prcode){
+                    $arsaveHead = array(
+                        "m_dataareaid" => $dataareaid,
+                        "m_costcenter" => $costcenter,
+                        "m_department" => $department,
+                        "m_itemcategory" => $itemcategory,
+                        "m_ecode" => $ecode,
+                        "m_vendid" => $vendid,
+                        "m_vendname" => $vendname,
+                        "m_paymtermid" => $paymtermid,
+                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_date_req" => condate_todb($datetimereq),
+                        "m_date_delivery" => condate_todb($datetimedelivery),
+                        "m_memo" => $memo ,
+                        "m_status" => "Wait Send Data",
+                        "m_userpost_modify" => $userpost,
+                        "m_ecodepost_modify" => $ecodepost,
+                        "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+                        "m_version_pr" => 1,
+                        "m_version_status" => "active",
+                        "m_invest_ecodefix" => $m_invest_ecodefix
+                    );
+                }else{
+                    $arsaveHead = array(
+                        "m_prcode" => $prcode,
+                        "m_prno" => $prno,
+                        "m_dataareaid" => $dataareaid,
+                        "m_plantype" => $plantype,
+                        "m_itemcategory" => $itemcategory,
+                        "m_costcenter" => $costcenter,
+                        "m_department" => $department,
+                        "m_ecode" => $ecode,
+                        "m_vendid" => $vendid,
+                        "m_vendname" => $vendname,
+                        "m_paymtermid" => $paymtermid,
+                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_date_req" => condate_todb($datetimereq),
+                        "m_date_delivery" => condate_todb($datetimedelivery),
+                        "m_memo" => $memo ,
+                        "m_status" => "Wait Send Data",
+                        "m_userpost_modify" => $userpost,
+                        "m_ecodepost_modify" => $ecodepost,
+                        "m_datetimepost_modify" => date("Y-m-d H:i:s"),
+                        "m_version_pr" => 1,
+                        "m_version_status" => "active",
+                        "m_invest_ecodefix" => $m_invest_ecodefix
+                    );
+                }
+            }else if($sqlcheckformcode->row()->m_dataareaid != $dataareaid){
                 $arsaveHead = array(
                     "m_prcode" => $prcode,
                     "m_prno" => $prno,
                     "m_dataareaid" => $dataareaid,
                     "m_plantype" => $plantype,
+                    "m_itemcategory" => $itemcategory,
                     "m_costcenter" => $costcenter,
                     "m_department" => $department,
                     "m_ecode" => $ecode,
@@ -550,11 +697,13 @@ class Mainapi_model extends CI_Model {
                     "m_date_req" => condate_todb($datetimereq),
                     "m_date_delivery" => condate_todb($datetimedelivery),
                     "m_memo" => $memo ,
-                    "m_userpost" => $userpost,
-                    "m_ecodepost" => $ecodepost,
-                    "m_datetimepost" => date("Y-m-d H:i:s"),
+                    "m_status" => "Wait Send Data",
+                    "m_userpost_modify" => $userpost,
+                    "m_ecodepost_modify" => $ecodepost,
+                    "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                     "m_version_pr" => 1,
-                    "m_version_status" => "active"
+                    "m_version_status" => "active",
+                    "m_invest_ecodefix" => $m_invest_ecodefix
                 );
             }
 
@@ -676,7 +825,9 @@ class Mainapi_model extends CI_Model {
                 DATE_FORMAT(m_datetimepost_pur, '%d/%m/%Y %H:%i:%s') AS m_datetimepost_pur,
                 main.m_memo_pur,
                 main.m_pono,
-                main.m_formisono_po
+                main.m_formisono_po,
+                main.m_currency,
+                main.m_currencyrate
                 FROM
                 main
                 WHERE m_formno = '$formno' ORDER BY m_version_pr DESC
@@ -706,10 +857,17 @@ class Mainapi_model extends CI_Model {
 
                 $resultDetail = $sqldetails->result();
                 $resultPriceSum = $sqldetails->row()->itemcalcprice;
+
+                // check currency type
+                if($sqlmain->row()->m_currency != "THB" && $sqlmain->row()->m_currency !== null){
+                    $resultPriceSum = (floatval($resultPriceSum) * floatval($sqlmain->row()->m_currencyrate)) / 100;
+                }
+                // check currency type
             }else{
                 $resultDetail = '';
                 $resultPriceSum = '';
             }
+
 
             $dataareaid = $sqlmain->row()->m_dataareaid;
             $plan = $sqlmain->row()->m_itemcategory;

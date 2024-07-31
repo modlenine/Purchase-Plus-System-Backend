@@ -6,12 +6,13 @@ $query_builder = TRUE;
 
 if($_SERVER['HTTP_HOST'] == "localhost"){
 	$mysqlServer = "192.168.20.22";
-	// $mssql = "192.168.10.60";
-	// $mssqlDB_sln = "SLC_STD_TEST";
-	// $mssqlDB_tbb = "APPLY_STD_TEST";
-	$mssql = "192.168.10.54";
-	$mssqlDB_sln = "SLC_STD";
-	$mssqlDB_tbb = "APPLY_STD";
+	$mssql = "192.168.10.60";
+	$mssqlDB_sln = "SLC_STD_TEST";
+	$mssqlDB_tbb = "APPLY_STD_TEST";
+
+	// $mssql = "192.168.10.54";
+	// $mssqlDB_sln = "SLC_STD";
+	// $mssqlDB_tbb = "APPLY_STD";
 }else{
 	$mysqlServer = "localhost";
 	$mssql = "192.168.10.54";
