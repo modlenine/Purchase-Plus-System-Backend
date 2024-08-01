@@ -225,6 +225,11 @@ class Mainapi extends MX_Controller {
         $this->mainapi->delFile();
     }
 
+    public function getStatus()
+    {
+        $this->mainapi->getStatus();
+    }
+
 
 
 }

@@ -976,10 +976,9 @@ class Mainapi_model extends CI_Model {
                     return $d;
                 }
             ),
-            array('db' => 'm_formno', 'dt' => 4 ,
+            array('db' => 'item_details', 'dt' => 4 ,
                 'formatter' => function($d , $row){
-                    $result = getItemDetail($d);
-                    return $result;
+                    return $d;
                 }
             ),
             array('db' => 'm_formno', 'dt' => 5 ,
@@ -1045,83 +1044,62 @@ class Mainapi_model extends CI_Model {
         require('server-side/scripts/ssp.class.php');
 
 
-        // $ecode = getUser()->ecode;
-        // $deptcode = getUser()->DeptCode;
-        // $posi = getUser()->posi;
+
+        $sql_searchBydate = "";
+        $startDate = $_POST['startdate_filter'];
+        $endDate = $_POST['enddate_filter'];
+        $dateType = $_POST['datetype_filter'];
+        $itemid = $_POST['itemid_filter'];
+        $status = $_POST['status_filter'];
+
+        $sql_searchBydate = "";
+        if($dateType == "deliveryDate"){
+            if (empty($startDate) && empty($endDate)) {
+                $sql_searchBydate = "m_date_delivery LIKE '%%' ";
+            } else if (empty($startDate) && !empty($endDate)) {
+                $sql_searchBydate = "m_date_delivery BETWEEN '$endDate' AND '$endDate' ";
+            } else if (!empty($startDate) && !empty($endDate)) {
+                $sql_searchBydate = "m_date_delivery BETWEEN '$startDate' AND '$endDate' ";
+            } else if (!empty($startDate) && empty($endDate)) {
+                $sql_searchBydate = "m_date_delivery BETWEEN '$startDate' AND '$startDate' ";
+            }
+        }else{
+            if (empty($startDate) && empty($endDate)) {
+                $sql_searchBydate = "m_date_req LIKE '%%' ";
+            } else if (empty($startDate) && !empty($endDate)) {
+                $sql_searchBydate = "m_date_req BETWEEN '$endDate' AND '$endDate' ";
+            } else if (!empty($startDate) && !empty($endDate)) {
+                $sql_searchBydate = "m_date_req BETWEEN '$startDate' AND '$endDate' ";
+            } else if (!empty($startDate) && empty($endDate)) {
+                $sql_searchBydate = "m_date_req BETWEEN '$startDate' AND '$startDate' ";
+            }
+        }
+
+        if(empty($status)){
+            $sql_searchByStatus = "m_status LIKE '%%'";
+        }else{
+            $sql_searchByStatus = "m_status = '$status'";
+        }
+
+        $sql_searchByStatus = "m_status LIKE '%$status%'";
 
 
-        // $sql_searchBydate = "";
-        // $startDate = conInputdataToDatabase($_POST['filter_startDate']);
-        // $endDate = conInputdataToDatabase($_POST['filter_endDate']);
+        // Item ID filtering
+        if (empty($itemid)) {
+            $sql_searchByItemid = "1=1"; // No filtering on itemid
+        } else {
+            $sql_searchByItemid = "EXISTS (
+                SELECT 1
+                FROM details d
+                WHERE d.d_m_formno = m_formno
+                AND d.d_itemid LIKE '%$itemid%'
+            )";
+        }
 
-        // $sql_searchBydate = "";
-        // if (empty($startDate) && empty($endDate)) {
-        //     $sql_searchBydate = "m_datetime LIKE '%%' ";
-        // } else if (empty($startDate) && !empty($endDate)) {
-        //     $sql_searchBydate = "m_datetime BETWEEN '$endDate 00:00:01' AND '$endDate 23:59:59' ";
-        // } else if (!empty($startDate) && !empty($endDate)) {
-        //     $sql_searchBydate = "m_datetime BETWEEN '$startDate 00:00:01' AND '$endDate 23:59:59' ";
-        // } else if (!empty($startDate) && empty($endDate)) {
-        //     $sql_searchBydate = "m_datetime BETWEEN '$startDate 00:00:01' AND '$startDate 23:59:59' ";
-        // }
+        $sql_searchByAll = "$sql_searchBydate AND $sql_searchByStatus AND $sql_searchByItemid";
 
-        // $sql_searchByStatus = "";
-        // $status = $_POST['filter_status'];
-        // if(empty($status)){
-        //     $sql_searchByStatus = "";
-        // }else{
-        //     $sql_searchByStatus = "AND m_status = '$status'";
-        // }
-
-        // $sql_searchByCategory = "";
-        // $category = getCategoryByid($_POST['filter_category']);
-        // if(empty($category)){
-        //     $sql_searchByCategory = "";
-        // }else{
-        //     $sql_searchByCategory = "AND tc_category = '$category'";
-        // }
-
-        // $sql_searchByFormno = "";
-        // $formno = $_POST['filter_formno'];
-        // if(empty($formno)){
-        //     $sql_searchByFormno = "";
-        // }else{
-        //     $sql_searchByFormno = "AND m_formno LIKE '%$formno%'";
-        // }
-
-        // $sql_searchByCustomer = "";
-        // $customer = $_POST['filter_customer'];
-        // if(empty($customer)){
-        //     $sql_searchByCustomer = "";
-        // }else{
-        //     $sql_searchByCustomer = "AND m_cusname LIKE '%$customer%'";
-        // }
-
-        // $sql_searchByInvoice = "";
-        // $invoice = $_POST['filter_invoice'];
-        // if(empty($invoice)){
-        //     $sql_searchByInvoice = "";
-        // }else{
-        //     $sql_searchByInvoice = "AND m_invoice LIKE '%$invoice%'";
-        // }
-
-        // $userUnit = get_datadeptUnitByUsername($this->session->username);
-        // if (count($userUnit) > 1) {
-        //     // แปลง array ให้เป็น string สำหรับใช้ใน query
-        //     $userUnitList = implode("','", $userUnit);
-        //     $sql_getdataBYuserunit = "AND m_comsubunit IN ('$userUnitList')";
-        // } else if (count($userUnit) == 1) {
-        //     $sql_getdataBYuserunit = "AND m_comsubunit = '$userUnit[0]'";
-        // }else{
-        //     $sql_getdataBYuserunit = "";
-        // }
-
-
-        // echo json_encode(
-        //     SSP::complex($_POST, $sql_details, $table, $primaryKey, $columns, null, "$sql_searchBydate $sql_searchByStatus $sql_searchByCategory $sql_searchByFormno $sql_searchByCustomer $sql_searchByInvoice")
-        // );
         echo json_encode(
-            SSP::complex($_POST, $sql_details, $table, $primaryKey, $columns, null, null)
+            SSP::complex($_POST, $sql_details, $table, $primaryKey, $columns, null, "$sql_searchByAll")
         );
 
         
@@ -2239,6 +2217,22 @@ class Mainapi_model extends CI_Model {
                 "status" => "Delete Data Not Success"
             );
         }
+
+        echo json_encode($output);
+    }
+
+    public function getStatus()
+    {
+        $sql = $this->db->query("SELECT
+        m_status
+        FROM main GROUP BY m_status ORDER BY m_status ASC
+        ");
+
+        $output = array(
+            "msg" => "ดึงข้อมูล Status สำเร็จ",
+            "status" => "Select Data Success",
+            "result" => $sql->result()
+        );
 
         echo json_encode($output);
     }
