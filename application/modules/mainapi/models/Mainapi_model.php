@@ -573,21 +573,6 @@ class Mainapi_model extends CI_Model {
             }
 
             $output = array(
-                // "headdata" => array(
-                //     "dataareaid" => $dataareaid,
-                //     "plantype" => $plantype,
-                //     "formcode" => concode($plantype),
-                //     "formno" => getFormno(concode($plantype)),
-                //     "costcenter" => $costcenter,
-                //     "department" => $department,
-                //     "vendid" => $vendid,
-                //     "vendname" => $vendname,
-                //     "datetimesystem" => date("Y-m-d H:i:s"),
-                //     "datetimereq" => condate_todb($datetimereq),
-                //     "datetimedelivery" => condate_todb($datetimedelivery),
-                //     "memo" => $memo
-                // ),
-                // "itemdata" => $itemdata
                 "msg" => "บันทึกข้อมูลสำเร็จ",
                 "status" => "Insert Data Success",
                 "formno" => $formno
@@ -610,12 +595,15 @@ class Mainapi_model extends CI_Model {
             //Head
             $dataareaid = $this->input->post("dataareaid");
             $plantype = $this->input->post("plantype");
+            $itemcategory = $this->input->post("itemcategory");
             $costcenter = $this->input->post("costcenter");
             $department = $this->input->post("department");
             $ecode = $this->input->post("ecode");
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
             $paymtermid = $this->input->post("paymtermid");
+            $currency = $this->input->post("currency");
+            $currencyrate = $this->input->post("currencyrate");
             $datetimesystem = date("Y-m-d H:i:s");
             $datetimereq = $this->input->post("datetimereq");
             $datetimedelivery = $this->input->post("datetimedelivery");
@@ -624,6 +612,7 @@ class Mainapi_model extends CI_Model {
             $prcode = concode($plantype);
             $ecodepost = $this->input->post("ecodepost");
             $userpost = $this->input->post("userpost");
+            $m_invest_ecodefix = $this->input->post("m_invest_ecodefix");
 
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
@@ -642,11 +631,11 @@ class Mainapi_model extends CI_Model {
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
                         "m_paymtermid" => $paymtermid,
-                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_currency" => $currency,
+                        "m_currencyrate" => $currencyrate,
                         "m_date_req" => condate_todb($datetimereq),
                         "m_date_delivery" => condate_todb($datetimedelivery),
                         "m_memo" => $memo ,
-                        "m_status" => "Wait Send Data",
                         "m_userpost_modify" => $userpost,
                         "m_ecodepost_modify" => $ecodepost,
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
@@ -667,11 +656,11 @@ class Mainapi_model extends CI_Model {
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
                         "m_paymtermid" => $paymtermid,
-                        "m_datetime_create" => date("Y-m-d H:i:s"),
+                        "m_currency" => $currency,
+                        "m_currencyrate" => $currencyrate,
                         "m_date_req" => condate_todb($datetimereq),
                         "m_date_delivery" => condate_todb($datetimedelivery),
                         "m_memo" => $memo ,
-                        "m_status" => "Wait Send Data",
                         "m_userpost_modify" => $userpost,
                         "m_ecodepost_modify" => $ecodepost,
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
@@ -693,11 +682,11 @@ class Mainapi_model extends CI_Model {
                     "m_vendid" => $vendid,
                     "m_vendname" => $vendname,
                     "m_paymtermid" => $paymtermid,
-                    "m_datetime_create" => date("Y-m-d H:i:s"),
+                    "m_currency" => $currency,
+                    "m_currencyrate" => $currencyrate,
                     "m_date_req" => condate_todb($datetimereq),
                     "m_date_delivery" => condate_todb($datetimedelivery),
                     "m_memo" => $memo ,
-                    "m_status" => "Wait Send Data",
                     "m_userpost_modify" => $userpost,
                     "m_ecodepost_modify" => $ecodepost,
                     "m_datetimepost_modify" => date("Y-m-d H:i:s"),
@@ -710,8 +699,6 @@ class Mainapi_model extends CI_Model {
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arsaveHead);
             //Head
-
-
 
             // Detail
             // Delete data
@@ -731,8 +718,8 @@ class Mainapi_model extends CI_Model {
                     "d_m_prno" => $dpr,
                     "d_itemid" => $item['itemid'],
                     "d_itemname" => $item['itemname'],
-                    "d_itemgroupid" => $item['itemgroupid'],
                     "d_itemdetail" => $item['itemdetail'],
+                    "d_itemgroupid" => $item['itemgroupid'],
                     "d_itemqty" => $item['itemqty'],
                     "d_itemprice" => $item['itemprice'],
                     "d_itemdiscount" => $item['itemdiscount'],
@@ -744,22 +731,12 @@ class Mainapi_model extends CI_Model {
                 $this->db->insert("details" , $arsaveDetail);
             }
 
+            if(!empty($_FILES['ip-cpre-file']['name'][0])){
+                $fileInput = "ip-cpre-file";
+                uploadFile($fileInput , $formno);
+            }
+
             $output = array(
-                // "headdata" => array(
-                //     "dataareaid" => $dataareaid,
-                //     "plantype" => $plantype,
-                //     "formcode" => concode($plantype),
-                //     "formno" => getFormno(concode($plantype)),
-                //     "costcenter" => $costcenter,
-                //     "department" => $department,
-                //     "vendid" => $vendid,
-                //     "vendname" => $vendname,
-                //     "datetimesystem" => date("Y-m-d H:i:s"),
-                //     "datetimereq" => condate_todb($datetimereq),
-                //     "datetimedelivery" => condate_todb($datetimedelivery),
-                //     "memo" => $memo
-                // ),
-                // "itemdata" => $itemdata
                 "msg" => "บันทึกข้อมูลสำเร็จ",
                 "status" => "Insert Data Success",
                 "formno" => $formno
