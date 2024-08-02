@@ -955,7 +955,7 @@ class Mainapi_model extends CI_Model {
             ),
             array('db' => 'item_details', 'dt' => 4 ,
                 'formatter' => function($d , $row){
-                    return $d;
+                    return strlen($d) > 40 ? substr($d , 0 , 40)."..": $d;
                 }
             ),
             array('db' => 'm_formno', 'dt' => 5 ,
