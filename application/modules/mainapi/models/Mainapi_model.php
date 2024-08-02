@@ -631,8 +631,8 @@ class Mainapi_model extends CI_Model {
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
                         "m_paymtermid" => $paymtermid,
-                        "m_currency" => $currency,
-                        "m_currencyrate" => $currencyrate,
+                        // "m_currency" => $currency,
+                        // "m_currencyrate" => $currencyrate,
                         "m_date_req" => condate_todb($datetimereq),
                         "m_date_delivery" => condate_todb($datetimedelivery),
                         "m_memo" => $memo ,
@@ -656,8 +656,8 @@ class Mainapi_model extends CI_Model {
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
                         "m_paymtermid" => $paymtermid,
-                        "m_currency" => $currency,
-                        "m_currencyrate" => $currencyrate,
+                        // "m_currency" => $currency,
+                        // "m_currencyrate" => $currencyrate,
                         "m_date_req" => condate_todb($datetimereq),
                         "m_date_delivery" => condate_todb($datetimedelivery),
                         "m_memo" => $memo ,
@@ -682,8 +682,8 @@ class Mainapi_model extends CI_Model {
                     "m_vendid" => $vendid,
                     "m_vendname" => $vendname,
                     "m_paymtermid" => $paymtermid,
-                    "m_currency" => $currency,
-                    "m_currencyrate" => $currencyrate,
+                    // "m_currency" => $currency,
+                    // "m_currencyrate" => $currencyrate,
                     "m_date_req" => condate_todb($datetimereq),
                     "m_date_delivery" => condate_todb($datetimedelivery),
                     "m_memo" => $memo ,
@@ -2213,7 +2213,7 @@ class Mainapi_model extends CI_Model {
 
         echo json_encode($output);
     }
-    
+
 
 }
 /* End of file ModelName.php */

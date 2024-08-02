@@ -201,13 +201,7 @@ class Mainapi extends MX_Controller {
 
     public function testcode()
     {
-        $optionTo = getemail_byecode("M0140");//ดึงเอาเฉพาะ Email ของผู้ตรวจสอบขึ้นมา
-        foreach($optionTo->result_array() as $rs){
-            $to[] = $rs['memberemail'];
-            $ecodeAr[] = $rs['ecode'];
-        }
-        array_push($to , 'test@saleecolour.com');
-        print_r($to);
+        sendemail_test($subject = "" , $body = "" , $to= "" , $cc="" , $pathfile="");
     }
 
     public function getdataDetail()
@@ -229,8 +223,6 @@ class Mainapi extends MX_Controller {
     {
         $this->mainapi->getStatus();
     }
-
-
 
 }
 
