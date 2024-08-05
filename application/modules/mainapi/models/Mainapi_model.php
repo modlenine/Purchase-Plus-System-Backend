@@ -1809,6 +1809,12 @@ class Mainapi_model extends CI_Model {
             $formno = $this->input->post("formno");
             $paygroup = $this->input->post("paygroup");
 
+            if($m_approve_pur == "yes"){
+                $status = "Purchase Verified";
+            }else{
+                $status = "Purchase Not Approve";
+            }
+
             //update old status
             //Send to notifycenter
             $notifyformno = $formno;
@@ -1826,7 +1832,7 @@ class Mainapi_model extends CI_Model {
                 "m_userpost_pur" => $m_userpost_pur,
                 "m_ecodepost_pur" => $m_ecodepost_pur,
                 "m_datetimepost_pur" => $m_datetimepost_pur,
-                "m_status" => "Purchase Verified"
+                "m_status" => $status
             );
 
             $this->db->where("m_formno" , $formno);
