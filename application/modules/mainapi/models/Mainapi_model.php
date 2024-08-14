@@ -1838,17 +1838,17 @@ class Mainapi_model extends CI_Model {
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arsavePur);
 
-            if($paygroup == "5"){
+            if($paygroup == "5" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G5($formno);
-            }else if($paygroup == "4"){
+            }else if($paygroup == "4" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G4($formno);
-            }else if($paygroup == "3"){
+            }else if($paygroup == "3" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G3($formno);
-            }else if($paygroup == "2"){
+            }else if($paygroup == "2" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G2($formno);
-            }else if($paygroup == "1"){
+            }else if($paygroup == "1" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G1($formno);
-            }else if($paygroup == "0"){
+            }else if($paygroup == "0" && $m_approve_pur == "yes"){
                 $this->email->sendto_createPO_G0($formno);
             }
 
