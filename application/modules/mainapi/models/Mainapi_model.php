@@ -2001,8 +2001,8 @@ class Mainapi_model extends CI_Model {
             a.sumlinedisc as sumlinedisc, 
             a.amount as amount, 
             a.invoiceaccount as vendid,
-            b.address as vendaddress,
-            b.name as vendname,
+			e.street+' '+e.zipcode as vendaddress,
+			d.purchname as vendname,
             b.phone as vendphone,
             b.telefax as vendfax,
             c.num as num,
@@ -2014,6 +2014,7 @@ class Mainapi_model extends CI_Model {
             INNER JOIN vendtable b ON a.dataareaid = b.dataareaid AND a.invoiceaccount = b.accountnum
             INNER JOIN dimensions c ON a.dataareaid = c.dataareaid
             INNER JOIN purchtable d ON a.dataareaid = d.dataareaid AND a.purchid = d.purchid
+			INNER JOIN slc_vendaddress e ON a.dataareaid = e.dataareaid AND a.invoiceaccount = e.accountnum
             WHERE a.dataareaid = ? AND a.purchid = ? AND c.num = ?
             ORDER BY purchaseorderid DESC
             " , array($areaid , $pono , $department));
