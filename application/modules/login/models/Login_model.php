@@ -64,7 +64,6 @@ class Login_model extends CI_Model {
                     "status" => "Login Successfully",
                     "uri" => $uri,
                     "session_data" => $sql->row_array(),
-                    "dateExpire" => strtotime(date("Y-m-d H:i:s")."+10 seconds"),
                 );
             }
 
@@ -78,9 +77,6 @@ class Login_model extends CI_Model {
       
         echo json_encode($output);
     }
-    
-    
-
 }
 
 /* End of file ModelName.php */

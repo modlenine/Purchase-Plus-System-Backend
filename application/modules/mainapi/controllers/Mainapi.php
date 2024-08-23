@@ -201,7 +201,7 @@ class Mainapi extends MX_Controller {
 
     public function testcode()
     {
-        sendemail_test($subject = "" , $body = "" , $to= "" , $cc="" , $pathfile="");
+       echo date("Y-m-d H:i:s" , "1724396214716");
     }
 
     public function getdataDetail()
