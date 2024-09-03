@@ -4459,7 +4459,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
@@ -4745,7 +4745,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
@@ -5032,7 +5032,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
@@ -5307,7 +5307,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
@@ -5582,7 +5582,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
@@ -5857,7 +5857,7 @@ class Email_model extends CI_Model {
         $link = $adminLink;
         $programname = "Purchase Plus";
 
-        $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
+        // $this->notifycenter->insertdataaction_template($ecodeActionArr , $title , $status , $link , $formno , $programname);
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
