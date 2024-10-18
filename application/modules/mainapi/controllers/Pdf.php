@@ -173,7 +173,7 @@ class Pdf extends MX_Controller {
         $pdf->SetFont('thsarabunb', '', 12);
         // $pdf->MultiCell(200, 90,'', 1, 'L', 0, 0, '' ,'', true);
         $pageHeight = $pdf->getPageHeight();
-        $bottomMargin = 110; // ขอบล่างของหน้า
+        $bottomMargin = 120; // ขอบล่างของหน้า
         $currentY = $pdf->GetY();
 
         $columnWidths = [10, 30, 60, 25, 25, 20, 30];
@@ -602,7 +602,7 @@ class MYPDF extends TCPDF {
         $this->SetFont('thsarabunb', '', 8);
         //section Footer
 
-        $footer1 = 'Purchase Remark : '.$this->memo_pur."\n";
+        $footer1 = 'Purchase Remark : '.$this->memo_pur."";
         $footer1 .= 'ระเบียบการวางบิล-รับเช็ค และวันหยุดประจำปี : https://intranet.saleecolour.com/intranet/holidaylastyear.html';
         $this->SetFont('thsarabunb', '', 12);
         $this->MultiCell(200, 16,$footer1, 0, 'L', 0, 1, '' ,'', true);

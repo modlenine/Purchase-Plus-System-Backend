@@ -266,6 +266,12 @@ function getemail_managerbydeptcode($deptcode , $areaid)
             memberemail , ecode
             FROM member WHERE ecode = 'M0112'
             ");
+        }else if($deptcode == 1012){
+            email()->db2 = email()->load->database('saleecolour', TRUE);
+            $sql = email()->db2->query("SELECT
+            memberemail , ecode
+            FROM member WHERE ecode = 'M0025'
+            ");
         }else{
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT

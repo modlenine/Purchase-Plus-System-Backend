@@ -1905,6 +1905,7 @@ class Mainapi_model extends CI_Model {
             DATE_FORMAT(m_datetime_create, '%d/%m/%Y') AS m_datetime_create,
             m_department,
             m_ecode,
+            DATE_FORMAT(m_datetimepost, '%d/%m/%Y') AS m_datetimepost,
             DATE_FORMAT(m_date_req, '%d/%m/%Y') AS m_date_req,
             m_memo,
             m_userpost_mgr,
