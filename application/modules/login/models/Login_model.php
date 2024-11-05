@@ -64,6 +64,11 @@ class Login_model extends CI_Model {
                     "status" => "Login Successfully",
                     "uri" => $uri,
                     "session_data" => $sql->row_array(),
+                    "timeExpire" => strtotime('+4 hours'),
+                    // "timeExpire" => strtotime('+120 seconds'),
+                    "timeNow" => strtotime('now'),
+                    "timeExpireShow" => date("Y-m-d H:i:s" , strtotime('+4 hours')),
+                    "timeNowShow" => date("Y-m-d H:i:s" , strtotime('now'))
                 );
             }
 
