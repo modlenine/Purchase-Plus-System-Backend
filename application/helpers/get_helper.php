@@ -96,7 +96,7 @@ function getPrno($prcode , $areaid)
 {
     // check formno ซ้ำในระบบ
     $sql = getfn()->db->query("SELECT
-    m_prno FROM main WHERE m_prcode = '$prcode' AND m_dataareaid = '$areaid' ORDER BY m_datetime_create DESC LIMIT 1
+    m_prno FROM main WHERE m_prcode = '$prcode' AND m_dataareaid = '$areaid' ORDER BY m_prno DESC LIMIT 1
     ");
 
     $curYear = date("Y");
