@@ -1507,6 +1507,14 @@ class Mainapi_model extends CI_Model {
                 $appMemo = "";
             }
 
+            //check Approve Type
+            $mainStatus = "";
+            if($appType == "yes"){
+                $mainStatus = "Executive Group 4 Approved";
+            }else{
+                $mainStatus = "Executive Group 4 Not Approve";
+            }
+
             //update old status
             //Send to notifycenter
             $notifyformno = $formno;
@@ -1529,13 +1537,15 @@ class Mainapi_model extends CI_Model {
             $this->db->update("approve_user" , $arsaveExeG4);
 
             $arSaveStatus = array(
-                "m_status" => "Executive Group 4 Approved",
+                "m_status" => $mainStatus,
                 "m_datetimeupdate" => date("Y-m-d H:i:s")
             );
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arSaveStatus);
 
-            $this->email->sendto_purchase_G4($formno);
+            if($appType == "yes"){
+                $this->email->sendto_purchase_G4($formno);
+            }
 
             $output = array(
                 "msg" => "บันทึกข้อมูล G4 สำเร็จ",
@@ -1564,6 +1574,14 @@ class Mainapi_model extends CI_Model {
                 $appMemo = "";
             }
 
+            //check Approve Type
+            $mainStatus = "";
+            if($appType == "yes"){
+                $mainStatus = "Executive Group 3 Approved";
+            }else{
+                $mainStatus = "Executive Group 3 Not Approve";
+            }
+
             //update old status
             //Send to notifycenter
             $notifyformno = $formno;
@@ -1586,13 +1604,15 @@ class Mainapi_model extends CI_Model {
             $this->db->update("approve_user" , $arsaveExeG3);
 
             $arSaveStatus = array(
-                "m_status" => "Executive Group 3 Approved",
+                "m_status" => $mainStatus,
                 "m_datetimeupdate" => date("Y-m-d H:i:s")
             );
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arSaveStatus);
 
-            $this->email->sendto_purchase_G3($formno);
+            if($appType == "yes"){
+                $this->email->sendto_purchase_G3($formno);
+            }
 
             $output = array(
                 "msg" => "บันทึกข้อมูล G3 สำเร็จ",
@@ -1621,6 +1641,14 @@ class Mainapi_model extends CI_Model {
                 $appMemo = "";
             }
 
+            //check Approve Type
+            $mainStatus = "";
+            if($appType == "yes"){
+                $mainStatus = "Executive Group 2 Approved";
+            }else{
+                $mainStatus = "Executive Group 2 Not Approve";
+            }
+
 
             $arsaveExeG2 = array(
                 "apv_approve" => $appType,
@@ -1635,27 +1663,47 @@ class Mainapi_model extends CI_Model {
             $sqlCheckTypeYes = $this->db->query("SELECT apv_approve FROM approve_user WHERE apv_formno = '$formno' AND apv_approve IS NOT NULL");
             $sqlTotalApp = $this->db->query("SELECT apv_ecode FROM approve_user WHERE apv_formno = '$formno'");
 
-            if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
-            //update old status
-            //Send to notifycenter
-            $notifyformno = $formno;
-            $notifyprogramname = "Purchase Plus";
-            $notifystatus = "action done";
-            $notifytype = "take action";
-
-            $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
-            //Send to notifycenter
-            //update old status
-
-                $arSaveStatus = array(
-                    "m_status" => "Executive Group 2 Approved",
-                    "m_datetimeupdate" => date("Y-m-d H:i:s")
-                );
-                $this->db->where("m_formno" , $formno);
-                $this->db->update("main" , $arSaveStatus);
-                $this->email->sendto_purchase_G2($formno);
+            if($appType == "yes"){
+                if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
+                    //update old status
+                    //Send to notifycenter
+                    $notifyformno = $formno;
+                    $notifyprogramname = "Purchase Plus";
+                    $notifystatus = "action done";
+                    $notifytype = "take action";
+    
+                    $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+                    //Send to notifycenter
+                    //update old status
+    
+                    $arSaveStatus = array(
+                        "m_status" => $mainStatus,
+                        "m_datetimeupdate" => date("Y-m-d H:i:s")
+                    );
+                    $this->db->where("m_formno" , $formno);
+                    $this->db->update("main" , $arSaveStatus);
+                    $this->email->sendto_purchase_G2($formno);
+                }
+            }else{
+                    //update old status
+                    //Send to notifycenter
+                    $notifyformno = $formno;
+                    $notifyprogramname = "Purchase Plus";
+                    $notifystatus = "action done";
+                    $notifytype = "take action";
+    
+                    $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+                    //Send to notifycenter
+                    //update old status
+    
+                    $arSaveStatus = array(
+                        "m_status" => $mainStatus,
+                        "m_datetimeupdate" => date("Y-m-d H:i:s")
+                    );
+                    $this->db->where("m_formno" , $formno);
+                    $this->db->update("main" , $arSaveStatus);
+                    // $this->email->sendto_purchase_G2($formno);
             }
-
 
             $output = array(
                 "msg" => "บันทึกข้อมูล G2 สำเร็จ",
@@ -1685,6 +1733,15 @@ class Mainapi_model extends CI_Model {
             }
 
 
+            //check Approve Type
+            $mainStatus = "";
+            if($appType == "yes"){
+                $mainStatus = "Executive Group 1 Approved";
+            }else{
+                $mainStatus = "Executive Group 1 Not Approve";
+            }
+
+
             $arsaveExeG1 = array(
                 "apv_approve" => $appType,
                 "apv_approve_memo" => $appMemo,
@@ -1698,8 +1755,29 @@ class Mainapi_model extends CI_Model {
             $sqlCheckTypeYes = $this->db->query("SELECT apv_approve FROM approve_user WHERE apv_formno = '$formno' AND apv_approve IS NOT NULL");
             $sqlTotalApp = $this->db->query("SELECT apv_ecode FROM approve_user WHERE apv_formno = '$formno'");
 
-            if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
+            if($appType == "yes"){
+                if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
 
+                    //update old status
+                    //Send to notifycenter
+                    $notifyformno = $formno;
+                    $notifyprogramname = "Purchase Plus";
+                    $notifystatus = "action done";
+                    $notifytype = "take action";
+    
+                    $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+                    //Send to notifycenter
+                    //update old status
+    
+                    $arSaveStatus = array(
+                        "m_status" => $mainStatus,
+                        "m_datetimeupdate" => date("Y-m-d H:i:s")
+                    );
+                    $this->db->where("m_formno" , $formno);
+                    $this->db->update("main" , $arSaveStatus);
+                    $this->email->sendto_purchase_G1($formno);
+                }
+            }else{
                 //update old status
                 //Send to notifycenter
                 $notifyformno = $formno;
@@ -1712,12 +1790,12 @@ class Mainapi_model extends CI_Model {
                 //update old status
 
                 $arSaveStatus = array(
-                    "m_status" => "Executive Group 1 Approved",
+                    "m_status" => $mainStatus,
                     "m_datetimeupdate" => date("Y-m-d H:i:s")
                 );
                 $this->db->where("m_formno" , $formno);
                 $this->db->update("main" , $arSaveStatus);
-                $this->email->sendto_purchase_G1($formno);
+                // $this->email->sendto_purchase_G1($formno);
             }
 
 
@@ -1748,16 +1826,13 @@ class Mainapi_model extends CI_Model {
                 $appMemo = "";
             }
 
-            //update old status
-            //Send to notifycenter
-            $notifyformno = $formno;
-            $notifyprogramname = "Purchase Plus";
-            $notifystatus = "action done";
-            $notifytype = "take action";
-
-            $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
-            //Send to notifycenter
-            //update old status
+            //check Approve Type
+            $mainStatus = "";
+            if($appType == "yes"){
+                $mainStatus = "Executive Group 0 Approved";
+            }else{
+                $mainStatus = "Executive Group 0 Not Approve";
+            }
 
             $arsaveExeG0 = array(
                 "apv_approve" => $appType,
@@ -1772,15 +1847,50 @@ class Mainapi_model extends CI_Model {
             $sqlCheckTypeYes = $this->db->query("SELECT apv_approve FROM approve_user WHERE apv_formno = '$formno' AND apv_approve IS NOT NULL");
             $sqlTotalApp = $this->db->query("SELECT apv_ecode FROM approve_user WHERE apv_formno = '$formno'");
 
-            if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
-                $arSaveStatus = array(
-                    "m_status" => "Executive Group 0 Approved",
-                    "m_datetimeupdate" => date("Y-m-d H:i:s")
-                );
-                $this->db->where("m_formno" , $formno);
-                $this->db->update("main" , $arSaveStatus);
-                $this->email->sendto_purchase_G0($formno);
+            if($appType == "yes"){
+                if($sqlCheckTypeYes->num_rows() == $sqlTotalApp->num_rows()){
+
+                    //update old status
+                    //Send to notifycenter
+                    $notifyformno = $formno;
+                    $notifyprogramname = "Purchase Plus";
+                    $notifystatus = "action done";
+                    $notifytype = "take action";
+
+                    $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+                    //Send to notifycenter
+                    //update old status
+
+                    $arSaveStatus = array(
+                        "m_status" => $mainStatus,
+                        "m_datetimeupdate" => date("Y-m-d H:i:s")
+                    );
+                    $this->db->where("m_formno" , $formno);
+                    $this->db->update("main" , $arSaveStatus);
+                    $this->email->sendto_purchase_G0($formno);
+                }
+            }else{
+                    //update old status
+                    //Send to notifycenter
+                    $notifyformno = $formno;
+                    $notifyprogramname = "Purchase Plus";
+                    $notifystatus = "action done";
+                    $notifytype = "take action";
+
+                    $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+                    //Send to notifycenter
+                    //update old status
+
+                    $arSaveStatus = array(
+                        "m_status" => $mainStatus,
+                        "m_datetimeupdate" => date("Y-m-d H:i:s")
+                    );
+                    $this->db->where("m_formno" , $formno);
+                    $this->db->update("main" , $arSaveStatus);
+                    // $this->email->sendto_purchase_G0($formno);
             }
+
+
 
 
             $output = array(
