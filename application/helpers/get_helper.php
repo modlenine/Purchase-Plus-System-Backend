@@ -322,6 +322,46 @@ function getItemDetail($formno)
     }
 }
 
+function getVendtable($vendid , $areaid)
+{
+    if(!empty($vendid) && !empty($areaid)){
+        getfn()->db_mssql = getfn()->load->database("mssql" , true);
+        $sql = getfn()->db_mssql->query("SELECT
+                a.accountnum AS accountnum,
+                a.name AS name,
+                a.address AS address,
+                a.paymtermid AS paymtermid,
+                a.currency AS currency,
+                a.email AS email,
+                b.txt AS currencytxt,
+                b.currencycodeiso AS currencycodeiso,
+                c.exchrate,
+                c.fromdate
+            FROM 
+                vendtable a
+            INNER JOIN 
+                currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
+            CROSS APPLY (
+                SELECT TOP 1 
+                    c.exchrate,
+                    c.fromdate
+                FROM 
+                    exchrates c 
+                WHERE 
+                    c.currencycode = b.currencycode 
+                    AND c.dataareaid = b.dataareaid
+                ORDER BY 
+                    c.fromdate DESC
+            ) c
+            WHERE 
+                a.accountnum = '$vendid' 
+                AND a.dataareaid = '$areaid';
+            ");
+
+        return $sql->row();
+    }
+}
+
 
 
 

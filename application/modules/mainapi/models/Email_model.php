@@ -5861,7 +5861,7 @@ class Email_model extends CI_Model {
         $this->notifycenter->insertdataRead_template($ecodeReadArr , $title , $status , $link , $formno , $programname);
     }
 
-    public function sendto_vendor($formno , $filePath)
+    public function sendto_vendor($formno , $filePath , $poemail)
     {
         if($_SERVER['HTTP_HOST'] == "localhost"){
             $adminLink = "http://localhost:8080/viewdata/$formno";
@@ -5895,7 +5895,8 @@ class Email_model extends CI_Model {
         // $optionTo = getemail_bydeptcode("1004");//ดึงเอาเฉพาะ Email ของจัดซื้อขึ้นมา
         // foreach($optionTo->result_array() as $rs){
         //     $t
-        $vendEmail = getVendEmail($emaildata->m_vendid , $emaildata->m_dataareaid);
+        // $vendEmail = getVendEmail($emaildata->m_vendid , $emaildata->m_dataareaid);
+        $vendEmail = $poemail;
         // $venderEmail = "chainarong039@gmail.com,chainarong_kid@hotmail.com";
         if($vendEmail != ""){
             $to = conEmailString($vendEmail);

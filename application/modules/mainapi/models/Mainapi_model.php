@@ -56,6 +56,7 @@ class Mainapi_model extends CI_Model {
                 a.address AS address,
                 a.paymtermid AS paymtermid,
                 a.currency AS currency,
+                a.email AS email,
                 b.txt AS currencytxt,
                 b.currencycodeiso AS currencycodeiso,
                 c.exchrate,
@@ -258,6 +259,7 @@ class Mainapi_model extends CI_Model {
             $ecode = $this->input->post("ecode");
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
+            $vendemail = $this->input->post("vendemail");
             $paymtermid = $this->input->post("paymtermid");
             $currency = $this->input->post("currency");
             $currencyrate = $this->input->post("currencyrate");
@@ -284,6 +286,7 @@ class Mainapi_model extends CI_Model {
                 "m_ecode" => $ecode,
                 "m_vendid" => $vendid,
                 "m_vendname" => $vendname,
+                "m_vendemail" => $vendemail,
                 "m_paymtermid" => $paymtermid,
                 "m_currency" => $currency,
                 "m_currencyrate" => $currencyrate,
@@ -379,6 +382,7 @@ class Mainapi_model extends CI_Model {
             $ecode = $this->input->post("ecode");
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
+            $vendemail = $this->input->post("vendemail");
             $paymtermid = $this->input->post("paymtermid");
             $currency = $this->input->post("currency");
             $currencyrate = $this->input->post("currencyrate");
@@ -463,6 +467,7 @@ class Mainapi_model extends CI_Model {
                     "m_ecode" => $ecode,
                     "m_vendid" => $vendid,
                     "m_vendname" => $vendname,
+                    "m_vendemail" => $vendemail,
                     "m_paymtermid" => $paymtermid,
                     "m_currency" => $currency,
                     "m_currencyrate" => $currencyrate,
@@ -601,6 +606,7 @@ class Mainapi_model extends CI_Model {
             $ecode = $this->input->post("ecode");
             $vendid = $this->input->post("vendid");
             $vendname = $this->input->post("vendname");
+            $vendemail = $this->input->post("vendemail");
             $paymtermid = $this->input->post("paymtermid");
             $currency = $this->input->post("currency");
             $currencyrate = $this->input->post("currencyrate");
@@ -630,6 +636,7 @@ class Mainapi_model extends CI_Model {
                         "m_ecode" => $ecode,
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
+                        "m_vendemail" => $vendemail,
                         "m_paymtermid" => $paymtermid,
                         // "m_currency" => $currency,
                         // "m_currencyrate" => $currencyrate,
@@ -655,6 +662,7 @@ class Mainapi_model extends CI_Model {
                         "m_ecode" => $ecode,
                         "m_vendid" => $vendid,
                         "m_vendname" => $vendname,
+                        "m_vendemail" => $vendemail,
                         "m_paymtermid" => $paymtermid,
                         // "m_currency" => $currency,
                         // "m_currencyrate" => $currencyrate,
@@ -681,6 +689,7 @@ class Mainapi_model extends CI_Model {
                     "m_ecode" => $ecode,
                     "m_vendid" => $vendid,
                     "m_vendname" => $vendname,
+                    "m_vendemail" => $vendemail,
                     "m_paymtermid" => $paymtermid,
                     // "m_currency" => $currency,
                     // "m_currencyrate" => $currencyrate,
@@ -770,6 +779,7 @@ class Mainapi_model extends CI_Model {
                 main.m_ecode,
                 main.m_vendid,
                 main.m_vendname,
+                main.m_vendemail,
                 main.m_paymtermid,
                 -- main.m_datetime_create,
                 DATE_FORMAT(m_datetime_create, '%d-%m-%Y %H:%i:%s') AS m_datetime_create,
@@ -811,6 +821,8 @@ class Mainapi_model extends CI_Model {
             ");
 
             if($sqlmain->num_rows() != 0){
+                $resultVendtable = getVendtable($sqlmain->row()->m_vendid , $sqlmain->row()->m_dataareaid);
+
                 $version_pr = $sqlmain->row()->m_version_pr;
                 $sqldetails = $this->db->query("SELECT
                 details.d_autoid,
@@ -843,6 +855,7 @@ class Mainapi_model extends CI_Model {
             }else{
                 $resultDetail = '';
                 $resultPriceSum = '';
+                $resultVendtable = '';
             }
 
 
@@ -861,7 +874,8 @@ class Mainapi_model extends CI_Model {
                 "paygroup" => $queryPaygroup,
                 "datetimenow" => date("d-m-Y H:i:s"),
                 "userApp" => $queryAppUser,
-                "files" => $queryFile->result()
+                "files" => $queryFile->result(),
+                "vendtable" => $resultVendtable
             );
         }else{
             $output = array(
@@ -2329,6 +2343,64 @@ class Mainapi_model extends CI_Model {
             "result" => $sql->result()
         );
 
+        echo json_encode($output);
+    }
+
+    //2025-02-28
+    public function getSendToVendorHistory()
+    {
+        if(!empty($this->input->post("pono")) && !empty($this->input->post("ponoDocnum")) && !empty($this->input->post("formno"))){
+            $pono = $this->input->post("pono");
+            $ponoDocnum = $this->input->post("ponoDocnum");
+            $formno = $this->input->post("formno");
+
+            $sql = $this->db->query("SELECT
+            sp_prno,
+            sp_pono,
+            sp_vendid,
+            sp_vendname,
+            sp_userpost,
+            sp_mailto,
+            DATE_FORMAT(sp_datetime , '%d-%m-%Y %H:%i:%s') AS sp_datetime
+            FROM sendpo_log WHERE sp_formno = ? AND sp_pono = ? AND sp_pono_docnum = ? ORDER BY sp_datetime DESC
+            " , array($formno , $pono , $ponoDocnum));
+
+            $output = array(
+                "msg" => "ดึงข้อมูลประวัติการส่ง Email สำเร็จ",
+                "status" => "Select Data Success",
+                "result" => $sql->result()
+            );
+        }else{
+            $output = array(
+                "msg" => "ดึงข้อมูลประวัติการส่ง Email ไม่สำเร็จ",
+                "status" => "Select Data Not Success",
+            );
+        }
+        echo json_encode($output);
+    }
+
+    public function getLastVendorEmail()
+    {
+        if(!empty($this->input->post("accountnum")) && !empty($this->input->post("dataareaid"))){
+            $accountnum = $this->input->post("accountnum");
+            $dataareaid = $this->input->post("dataareaid");
+
+            $sql = $this->db->query("SELECT
+            sp_mailto
+            FROM sendpo_log WHERE sp_vendid = ? AND sp_dataareaid = ? ORDER BY sp_datetime DESC LIMIT 1
+            " , array($accountnum , $dataareaid));
+
+            $output = array(
+                "msg" => "ดึงข้อมูลรายชื่อ Email ล่าสุดสำเร็จ",
+                "status" => "Select Data Success",
+                "result" => $sql->row()
+            );
+        }else{
+            $output = array(
+                "msg" => "ดึงข้อมูลรายชื่อ Email ล่าสุดไม่สำเร็จ",
+                "status" => "Select Data Not Success",
+            );
+        }
         echo json_encode($output);
     }
 

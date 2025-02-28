@@ -224,6 +224,17 @@ class Mainapi extends MX_Controller {
         $this->mainapi->getStatus();
     }
 
+    //2025-02-28
+    public function getSendToVendorHistory()
+    {
+        $this->mainapi->getSendToVendorHistory();
+    }
+
+    public function getLastVendorEmail()
+    {
+        $this->mainapi->getLastVendorEmail();
+    }
+
 }
 
 /* End of file Controllername.php */

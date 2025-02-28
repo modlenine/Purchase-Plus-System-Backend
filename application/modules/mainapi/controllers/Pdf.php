@@ -24,6 +24,8 @@ class Pdf extends MX_Controller {
         $userMgr = $this->input->post("userpostMgr");
         $dateMgr = $this->input->post("datetimepostMgr");
         $memo_pur = $this->input->post("memo_pur");
+        $poemail = $this->input->post("poemail");
+        $dataareaid = $this->input->post("dataareaid");
 
         $userSend = $this->input->post("userSend");
         $ecodeSend = $this->input->post("ecodeSend");
@@ -215,17 +217,19 @@ class Pdf extends MX_Controller {
         $filePath = 'uploads/Document-'.$purchid.'.pdf';
         file_put_contents($filePath, $pdfOutput);
 
-       $this->email->sendto_vendor($formno , $filePath);
+       $this->email->sendto_vendor($formno , $filePath , $poemail);
         $arSaveLog = array(
             "sp_formno" => $formno,
             "sp_pono" => $purchid,
+            "sp_pono_docnum" => $purchorderdocnum,
             "sp_prno" => $bpc_purchasereqno,
             "sp_vendid" => $vendid,
             "sp_vendname" => $vendname,
             "sp_userpost" => $userSend,
             "sp_ecodepost" => $ecodeSend,
-            "sp_mailto" => $email,
-            "sp_datetime" => date("Y-m-d H:i:s")
+            "sp_mailto" => $poemail,
+            "sp_datetime" => date("Y-m-d H:i:s"),
+            "sp_dataareaid" => $dataareaid
         );
         $this->db->insert("sendpo_log" , $arSaveLog);
         // echo base64_encode($pdfOutput);
