@@ -2404,6 +2404,32 @@ class Mainapi_model extends CI_Model {
         echo json_encode($output);
     }
 
+    public function checkSendEmailHistory()
+    {
+        if(!empty($this->input->post("pono")) && !empty($this->input->post("ponoDocnum")) && !empty($this->input->post("formno"))){
+            $pono = $this->input->post("pono");
+            $ponoDocnum = $this->input->post("ponoDocnum");
+            $formno = $this->input->post("formno");
+
+            $sql = $this->db->query("SELECT
+            sp_mailto
+            FROM sendpo_log WHERE sp_pono = ? AND sp_pono_docnum = ? AND sp_formno = ?
+            " , array($pono , $ponoDocnum , $formno));
+
+            $output = array(
+                "msg" => "เช็กข้อมูลการส่ง Email สำเร็จ",
+                "status" => "Select Data Success",
+                "result" => $sql->num_rows()
+            );
+        }else{
+            $output = array(
+                "msg" => "เช็กข้อมูลการส่ง Email ไม่สำเร็จ",
+                "status" => "Select Data Not Success",
+            );
+        }
+        echo json_encode($output);
+    }
+
 
 }
 /* End of file ModelName.php */

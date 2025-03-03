@@ -235,6 +235,11 @@ class Mainapi extends MX_Controller {
         $this->mainapi->getLastVendorEmail();
     }
 
+    public function checkSendEmailHistory()
+    {
+        $this->mainapi->checkSendEmailHistory();
+    }
+
 }
 
 /* End of file Controllername.php */
