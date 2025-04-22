@@ -119,21 +119,21 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
         $mail->FromName     = "Purchase Plus System";
         $mail->Port         = 587;                                    // TCP port to connect to
 
-        if(!empty($to)){
-            foreach($to as $email){
-                $mail->AddAddress($email);
-            }
-        }
+        // if(!empty($to)){
+        //     foreach($to as $email){
+        //         $mail->AddAddress($email);
+        //     }
+        // }
 
         // foreach($to as $email){
         //     $mail->AddAddress($email);
         // }
 
-        if(!empty($cc)){
-            foreach($cc as $email){
-                $mail->AddCC($email);
-            }
-        }
+        // if(!empty($cc)){
+        //     foreach($cc as $email){
+        //         $mail->AddCC($email);
+        //     }
+        // }
 
         // foreach($cc as $email){
         //     $mail->AddCC($email);
@@ -187,8 +187,10 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
         '.$body;
         if($_SERVER['HTTP_HOST'] != "localhost"){
             $mail->send();
+            return 'Message has been sent';
         }
-        return 'Message has been sent';
+        // $mail->send();
+        // return 'Message has been sent';
     } catch (Exception $e) {
         return "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }

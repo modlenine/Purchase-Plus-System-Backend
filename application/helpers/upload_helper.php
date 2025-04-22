@@ -169,6 +169,99 @@ function uploadFile($fileInput , $formcode)
 }
 
 
+function uploadFile_compare($fileInput , $formno , $id)
+{
+    uploadfn()->db_compare = getfn()->load->database('compare_vendor', TRUE);
+    // Upload file Zone
+
+    if (!isset($_FILES[$fileInput])) {
+        return;
+    }
+
+    // Check folder ว่ามีอยู่หรือไม่
+    $yearNow = date("Y");
+    $dateNow = date("Y-m-d");
+    $imagePath = "uploads/compare_vendor/".$yearNow."/".$dateNow."/";
+    // $paths = 'uploads\images';
+
+    $fileno = 1;
+
+
+
+    $url = $_SERVER['HTTP_HOST'];
+    if($url == "localhost"){
+        $paths = 'uploads\compare_vendor';
+        if(!file_exists($paths."\\".$yearNow)){
+            mkdir($paths."\\".$yearNow , 0755 , true);
+        }
+        if(!file_exists($paths."\\".$yearNow."\\".$dateNow)){
+            mkdir($paths."\\".$yearNow."\\".$dateNow , 0755 , true);
+        }
+    }else{
+        $paths = 'uploads/compare_vendor';
+        if(!file_exists($paths."/".$yearNow)){
+            mkdir($paths."/".$yearNow , 0755 , true);
+        }
+        if(!file_exists($paths."/".$yearNow."/".$dateNow)){
+            mkdir($paths."/".$yearNow."/".$dateNow , 0755 , true);
+        }
+    }
+
+    $file = $_FILES[$fileInput];
+
+    foreach($file['name'] as $key => $value){
+
+        if ($file['tmp_name'][$key] != "") {
+
+            $path_parts = pathinfo($value);
+
+            if($path_parts['extension'] == "jpeg"){
+                $filename_type = "jpg";
+            }else{
+                $filename_type = $path_parts['extension'];
+            }
+
+             //uniqid
+            $uniqueFileName = bin2hex(random_bytes(16));
+            //uniqid
+            
+            $filenameFull = substr_replace($value,  $formno."-". $fileno."-".$uniqueFileName.".". $filename_type, 0);
+
+            $file_name_s = substr_replace($value,  $formno."-". $fileno."-".$uniqueFileName , 0);
+            // Upload file
+            $file_tmp = $file['tmp_name'][$key];
+
+
+
+            if($path_parts['extension'] != "pdf" && $path_parts['extension'] != "PDF" && $path_parts['extension'] != "png" && $path_parts['extension'] != "PNG"){
+                $newWidth = 1000;
+                resize($newWidth, "uploads/compare_vendor/".$yearNow."/".$dateNow."/".$file_name_s, $file_tmp);
+            }else{
+                move_uploaded_file($file_tmp, "uploads/compare_vendor/".$yearNow."/".$dateNow."/". $filenameFull);
+                $uploadFile = "uploads/compare_vendor/".$yearNow."/".$dateNow."/". $filenameFull;
+                chmod($uploadFile, 0755);
+            }
+
+            // Save Data Image to Database
+            $arSaveDataImage = array(
+                "name" => $filenameFull,
+                "path" => $imagePath,
+                "formno" => $formno,
+                "compare_id" => $id,
+                "datetime" => date("Y-m-d H:i:s")
+            );
+            uploadfn()->db_compare->insert("compare_file" , $arSaveDataImage);
+
+        } 
+
+        $fileno++;
+    }
+    // Upload file Zone
+    return ["status" => "success", "msg" => "อัปโหลดไฟล์สำเร็จ"];
+}
+
+
+
 
 
 

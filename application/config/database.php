@@ -42,6 +42,28 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
+$db['compare_vendor'] = array(
+	'dsn'	=> '',
+	'hostname' => $mysqlServer,
+	'username' => 'ant',
+	'password' => 'Ant1234',
+	'database' => 'compare_vendor',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => FALSE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);
+
 $db['saleecolour'] = array(
 	'dsn'	=> '',
 	'hostname' => $mysqlServer,

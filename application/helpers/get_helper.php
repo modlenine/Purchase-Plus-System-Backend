@@ -305,6 +305,17 @@ function conDateFromDb($date)
     
 }
 
+function conDateTimeFromDb($datetime)
+{
+    if($datetime != ""){
+        $datetimeIn = date_create($datetime);
+        return date_format($datetimeIn,"d/m/Y H:i:s");
+    }else{
+        return $datetime;
+    }
+    
+}
+
 function getItemDetail($formno)
 {
     if(!empty($formno)){
@@ -358,6 +369,85 @@ function getVendtable($vendid , $areaid)
                 AND a.dataareaid = '$areaid';
             ");
 
+        return $sql->row();
+    }
+}
+
+function getCompareFormno()
+{
+    // check formno ซ้ำในระบบ
+    getfn()->db_compare = getfn()->load->database('compare_vendor', TRUE);
+    $sql = getfn()->db_compare->query("SELECT
+    formno FROM compare_formno ORDER BY id DESC LIMIT 1
+    ");
+
+    $cutYear = substr(date("Y"), 2, 2);
+    $getMonth = substr(date("m"), 0, 2);
+    $formno = "";
+    if ($sql->num_rows() == 0) {
+        $formno = "CO" . $cutYear.$getMonth. "000001";
+    } else {
+        $getFormno = $sql->row()->formno;
+        $cutGetYear = substr($getFormno, 2, 2); //KB2003001
+        $cutNo = substr($getFormno, 6, 6); //อันนี้ตัดเอามาแค่ตัวเลขจาก CP2003000001 ตัดเหลือ 000001
+        $cutNo++;
+
+        if ($cutNo < 10) {
+            $cutNo = "00000" . $cutNo;
+        } else if ($cutNo < 100) {
+            $cutNo = "0000" . $cutNo;
+        }else if($cutNo < 1000){
+            $cutNo = "000" . $cutNo;
+        }else if($cutNo < 10000){
+            $cutNo = "00" . $cutNo;
+        }else if($cutNo < 100000){
+            $cutNo = "0" . $cutNo;
+        }
+
+        if ($cutGetYear != $cutYear) {
+            $formno = "CO" . $cutYear.$getMonth."000001";
+        } else {
+            $formno = "CO" . $cutGetYear.$getMonth. $cutNo;
+        }
+    }
+    getfn()->db_compare->insert("compare_formno" , [
+        "formno" => $formno
+    ]);
+    return $formno;
+}
+
+function getdataforemail_compare($compare_id){
+    if(!empty($compare_id)){
+        getfn()->db_compare = getfn()->load->database('compare_vendor', TRUE);
+        $sql = getfn()->db_compare->query("SELECT
+        compare_master.id,
+        compare_master.formno,
+        compare_master.dataareaid,
+        compare_master.accountnum,
+        compare_vendors.vendor_name,
+        compare_master.vendor_index,
+        compare_master.reason,
+        compare_master.user_create,
+        compare_master.ecode_create,
+        compare_master.dept_create,
+        compare_master.deptcode_create,
+        DATE_FORMAT(compare_master.datetime_create, '%d/%m/%Y %H:%i:%s') AS datetime_create,
+        compare_master.datetime_modify,
+        compare_master.compare_status,
+        compare_master.last_updated,
+        compare_master.memo_approval,
+        compare_master.user_approval,
+        compare_master.ecode_approval,
+        compare_master.deptcode_approval,
+        DATE_FORMAT(compare_master.datetime_approval, '%d/%m/%Y %H:%i:%s') AS datetime_approval,
+        compare_master.status_approval,
+        GROUP_CONCAT(compare_items.itemdetail ORDER BY compare_items.id SEPARATOR ' , ') AS itemdetails
+        FROM
+        compare_master
+        INNER JOIN compare_vendors ON compare_vendors.compare_id = compare_master.id AND compare_vendors.vendor_index = compare_master.vendor_index
+        INNER JOIN compare_items ON compare_items.compare_id = compare_vendors.compare_id AND compare_items.vendor_index = compare_vendors.vendor_index
+        WHERE
+        compare_master.id = ? " , array($compare_id));
         return $sql->row();
     }
 }

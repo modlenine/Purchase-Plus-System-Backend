@@ -27,6 +27,11 @@ class Mainapi extends MX_Controller {
         $this->mainapi->getVendID();
     }
 
+    public function getVendData()
+    {
+        $this->mainapi->getVendData();
+    }
+
     public function getCostcenter()
     {
         $this->mainapi->getCostcenter();

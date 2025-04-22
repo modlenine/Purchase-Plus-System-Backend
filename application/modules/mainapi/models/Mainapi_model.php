@@ -10,6 +10,7 @@ class Mainapi_model extends CI_Model {
         date_default_timezone_set("Asia/Bangkok");
         $this->db_mssql = $this->load->database("mssql" , TRUE);
         $this->db_mssql2 = $this->load->database("mssql2" , TRUE);
+        $this->db_compare = $this->load->database('compare_vendor', true);
         $this->load->model("email_model" , "email");
     }
 
@@ -80,6 +81,58 @@ class Mainapi_model extends CI_Model {
             WHERE 
                 a.accountnum LIKE '%$vendid%' 
                 AND a.dataareaid = '$areaid';
+            ");
+
+            $output = array(
+                "msg" => "ดึงข้อมูลผู้ขายสำเร็จ",
+                "status" => "Select Data Success",
+                "result" => $sql->result()
+            );
+        }else{
+            $output = array(
+                "msg" => "ดึงข้อมูลไม่สำเร็จ",
+                "status" => "Select Data Not Success"
+            );
+        }
+        echo json_encode($output);
+    }
+
+    public function getVendData()
+    {
+        if(!empty($this->input->post("dataareaid")) && !empty($this->input->post("vendorname"))){
+            $dataareaid = $this->input->post("dataareaid");
+            $vendorname = $this->input->post("vendorname");
+            $sql = $this->db_mssql->query("SELECT
+                a.accountnum AS accountnum,
+                a.name AS name,
+                a.address AS address,
+                a.paymtermid AS paymtermid,
+                a.currency AS currency,
+                a.email AS email,
+                a.dataareaid AS dataareaid,
+                b.txt AS currencytxt,
+                b.currencycodeiso AS currencycodeiso,
+                c.exchrate,
+                c.fromdate
+            FROM 
+                vendtable a
+            INNER JOIN 
+                currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
+            CROSS APPLY (
+                SELECT TOP 1 
+                    c.exchrate,
+                    c.fromdate
+                FROM 
+                    exchrates c 
+                WHERE 
+                    c.currencycode = b.currencycode 
+                    AND c.dataareaid = b.dataareaid
+                ORDER BY 
+                    c.fromdate DESC
+            ) c
+            WHERE 
+                a.name LIKE '%$vendorname%' 
+                AND a.dataareaid = '$dataareaid';
             ");
 
             $output = array(
@@ -273,6 +326,7 @@ class Mainapi_model extends CI_Model {
             $userpost = $this->input->post("userpost");
             $formno = getFormno();
             $m_invest_ecodefix = $this->input->post("m_invest_ecodefix");
+            $compare_formno = $this->input->post("compare_formno");
 
             $arsaveHead = array(
                 "m_formno" => $formno,
@@ -301,12 +355,17 @@ class Mainapi_model extends CI_Model {
                 "m_version_pr" => 1,
                 "m_version_status" => "active",
                 "m_formisono" => "PC-F-001-00-14-07-60",
-                "m_invest_ecodefix" => $m_invest_ecodefix
+                "m_invest_ecodefix" => $m_invest_ecodefix,
+                "m_compare_formno" => $compare_formno
             );
             $this->db->insert("main" , $arsaveHead);
             //Head
 
-
+            //update Compare Status
+            $this->db_compare->where("formno" , $compare_formno);
+            $this->db_compare->update("compare_master" , [
+                "compare_status" => "Compare Used"
+            ]);
 
             // Detail
             $itemdata = json_decode($this->input->post("itemdata") , true);
@@ -399,6 +458,17 @@ class Mainapi_model extends CI_Model {
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
 
+            $compare_formno = $this->input->post("compare_formno");
+            //check compare formno
+            $oldCompareFormno  = $this->checkCompareFormno($compare_formno , $formno);
+            if ($oldCompareFormno !== null) {
+                // ทำการอัพเดตสถานะของ Compare เดิมเป็น "Compare Approved"
+                $this->db_compare->where('formno', $oldCompareFormno);
+                $this->db_compare->update('compare_master', [
+                    'compare_status' => 'Compare Approved'
+                ]);
+            }
+
             // check formcode
             $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
             // check Data areaid
@@ -425,7 +495,8 @@ class Mainapi_model extends CI_Model {
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                         "m_version_pr" => 1,
                         "m_version_status" => "active",
-                        "m_invest_ecodefix" => $m_invest_ecodefix
+                        "m_invest_ecodefix" => $m_invest_ecodefix,
+                        "m_compare_formno" => $compare_formno
                     );
                 }else{
                     $arsaveHead = array(
@@ -452,7 +523,8 @@ class Mainapi_model extends CI_Model {
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                         "m_version_pr" => 1,
                         "m_version_status" => "active",
-                        "m_invest_ecodefix" => $m_invest_ecodefix
+                        "m_invest_ecodefix" => $m_invest_ecodefix,
+                        "m_compare_formno" => $compare_formno
                     );
                 }
             }else if($sqlcheckformcode->row()->m_dataareaid != $dataareaid){
@@ -481,7 +553,8 @@ class Mainapi_model extends CI_Model {
                     "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                     "m_version_pr" => 1,
                     "m_version_status" => "active",
-                    "m_invest_ecodefix" => $m_invest_ecodefix
+                    "m_invest_ecodefix" => $m_invest_ecodefix,
+                    "m_compare_formno" => $compare_formno
                 );
             }
 
@@ -540,6 +613,13 @@ class Mainapi_model extends CI_Model {
             //Head
 
 
+            //update compare status new
+            $this->db_compare->where('formno', $compare_formno);
+            $this->db_compare->update('compare_master', [
+                'compare_status' => 'Compare Used'
+            ]);
+
+
 
             // Detail
             // Delete data
@@ -592,6 +672,30 @@ class Mainapi_model extends CI_Model {
         echo json_encode($output);
 
 
+    }
+
+    private function checkCompareFormno($compare_formno, $formno)
+    {
+        if (!empty($compare_formno) && !empty($formno)) {
+            $sqlCheck = $this->db->query("SELECT 
+            m_compare_formno
+            FROM main
+            WHERE m_formno = ?
+            ", [$formno]);
+    
+            if ($sqlCheck->num_rows() > 0) {
+                $row = $sqlCheck->row();
+                $compareInDB = $row->m_compare_formno;
+    
+                // ถ้า compare_formno ที่ส่งมา ไม่ตรงกับของเดิม
+                if ($compareInDB !== $compare_formno) {
+                    // 🔁 คืนค่า compare_formno เดิมที่เคยบันทึกไว้ (สำหรับอัพเดต status)
+                    return $compareInDB;
+                }
+            }
+        }
+    
+        return null; // ไม่มีข้อมูล หรือ compare_formno เหมือนเดิม
     }
 
     public function saveDataAll_edit_purchase()
@@ -769,6 +873,7 @@ class Mainapi_model extends CI_Model {
 
             $sqlmain = $this->db->query("SELECT
                 main.m_autoid,
+                main.m_compare_formno,
                 main.m_prcode,
                 main.m_prno,
                 main.m_dataareaid,
