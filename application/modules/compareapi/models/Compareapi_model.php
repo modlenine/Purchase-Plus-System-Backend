@@ -279,9 +279,14 @@ class Compareapi_model extends CI_Model
         $userDeptcode = $request["userData_deptcode"];
         $userposi     = $request['userData_posi'];
 
+        $filterStartDate = $request['filter_startdate'] ?? '';
+        $filterEndDate   = $request['filter_enddate'] ?? '';
+        $filterItemId    = $request['filter_itemid'] ?? '';
+        $filterStatus    = $request['filter_status'] ?? '';
+
         $columns = [
             'formno',
-            'itemdetails',
+            'items_all',
             'vendor_name',
             'ecode_create',
             'datetime_create',
@@ -304,6 +309,29 @@ class Compareapi_model extends CI_Model
                 $baseSQL .= " AND m.deptcode_create = ?";
                 $params[] = $userDeptcode;
             }
+        }
+
+        if (!empty($filterStartDate) && !empty($filterEndDate)) {
+            $baseSQL .= " AND DATE(m.datetime_create) BETWEEN ? AND ?";
+            $params[] = $filterStartDate;
+            $params[] = $filterEndDate;
+        }
+        
+        if (!empty($filterItemId)) {
+            $baseSQL .= " AND (
+                LOWER(i.itemid) LIKE ? OR 
+                LOWER(i.itemname) LIKE ? OR 
+                LOWER(i.itemdetail) LIKE ?
+            )";
+            $filter = strtolower($filterItemId);
+            $params[] = "%{$filter}%";
+            $params[] = "%{$filter}%";
+            $params[] = "%{$filter}%";
+        }
+        
+        if (!empty($filterStatus)) {
+            $baseSQL .= " AND m.compare_status = ?";
+            $params[] = $filterStatus;
         }
 
         // 🔽 Column specific filtering
@@ -354,7 +382,7 @@ class Compareapi_model extends CI_Model
                         m.compare_status,
                         m.last_updated,
                         v.vendor_name,
-                        GROUP_CONCAT(i.itemdetail ORDER BY i.id SEPARATOR ' , ') AS itemdetails
+                        GROUP_CONCAT(i.itemdetail ORDER BY i.id SEPARATOR ' , ') AS items_all
                     " . $baseSQL . "
                     GROUP BY m.id
                     ORDER BY {$orderBy} {$orderDir}
@@ -368,7 +396,7 @@ class Compareapi_model extends CI_Model
         foreach ($queryPage->result() as $row) {
             $data[] = [
                 'formno'          => $row->formno,
-                'items_all'       => $row->itemdetails,
+                'items_all'       => $row->items_all,
                 'vendorname'      => $row->vendor_name,
                 'ecode_create'    => $row->ecode_create,
                 'datetime_create' => $row->datetime_create,
@@ -385,9 +413,9 @@ class Compareapi_model extends CI_Model
         ]);
     }
 
-    public function getCompareMasterByFormno($formno , $deptcode)
+    public function getCompareMasterByFormno($formno, $deptcode)
     {
-        return $this->db_compare->where(['formno' => $formno , 'deptcode_create' => $deptcode])
+        return $this->db_compare->where(['formno' => $formno, 'deptcode_create' => $deptcode])
             ->get('compare_master')
             ->row();
     }
@@ -774,7 +802,7 @@ class Compareapi_model extends CI_Model
     public function searchCompareVendor($keyword)
     {
         $deptcode_user = $this->input->post("deptcode_user");
-        $sql = $this->db_compare->query("SELECT
+        $sql           = $this->db_compare->query("SELECT
             m.id,
             m.formno,
             m.dataareaid,
@@ -803,10 +831,10 @@ class Compareapi_model extends CI_Model
 
     public function getVendData_Compare()
     {
-        if(!empty($this->input->post("dataareaid")) && !empty($this->input->post("accountnum"))){
+        if (! empty($this->input->post("dataareaid")) && ! empty($this->input->post("accountnum"))) {
             $dataareaid = $this->input->post("dataareaid");
             $accountnum = $this->input->post("accountnum");
-            $sql = $this->db_mssql->query("SELECT
+            $sql        = $this->db_mssql->query("SELECT
                 a.accountnum AS accountnum,
                 a.name AS name,
                 a.address AS address,
@@ -818,46 +846,46 @@ class Compareapi_model extends CI_Model
                 b.currencycodeiso AS currencycodeiso,
                 c.exchrate,
                 c.fromdate
-            FROM 
+            FROM
                 vendtable a
-            INNER JOIN 
+            INNER JOIN
                 currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
             CROSS APPLY (
-                SELECT TOP 1 
+                SELECT TOP 1
                     c.exchrate,
                     c.fromdate
-                FROM 
-                    exchrates c 
-                WHERE 
-                    c.currencycode = b.currencycode 
+                FROM
+                    exchrates c
+                WHERE
+                    c.currencycode = b.currencycode
                     AND c.dataareaid = b.dataareaid
-                ORDER BY 
+                ORDER BY
                     c.fromdate DESC
             ) c
-            WHERE 
+            WHERE
                 a.accountnum = ?
                 AND a.dataareaid = ?
-            " , array($accountnum , $dataareaid));
+            ", [$accountnum, $dataareaid]);
 
-            $output = array(
-                "msg" => "ดึงข้อมูลผู้ขาย (Compare) สำเร็จ",
+            $output = [
+                "msg"    => "ดึงข้อมูลผู้ขาย (Compare) สำเร็จ",
                 "status" => "Select Data Success",
-                "result" => $sql->row()
-            );
-        }else{
-            $output = array(
-                "msg" => "ดึงข้อมูลผู้ขาย (Compare)ไม่สำเร็จ",
-                "status" => "Select Data Not Success"
-            );
+                "result" => $sql->row(),
+            ];
+        } else {
+            $output = [
+                "msg"    => "ดึงข้อมูลผู้ขาย (Compare)ไม่สำเร็จ",
+                "status" => "Select Data Not Success",
+            ];
         }
         echo json_encode($output);
     }
 
     public function getItemData_Compare()
     {
-        if(!empty($this->input->post("formno"))){
+        if (! empty($this->input->post("formno"))) {
             $formno = $this->input->post("formno");
-            $query = $this->db_compare->query("SELECT
+            $query  = $this->db_compare->query("SELECT
                 m.vendor_index,
                 m.formno,
                 m.id,
@@ -870,22 +898,31 @@ class Compareapi_model extends CI_Model
                 i.itemunit,
                 i.price
             FROM compare_master m
-            INNER JOIN compare_items i 
-                ON i.vendor_index = m.vendor_index 
+            INNER JOIN compare_items i
+                ON i.vendor_index = m.vendor_index
                 AND i.compare_formno = m.formno
-            WHERE m.formno = ?" , array($formno));
+            WHERE m.formno = ?", [$formno]);
 
             echo json_encode([
-                "msg" => "ดึงข้อมูล Item สำเร็จ",
+                "msg"    => "ดึงข้อมูล Item สำเร็จ",
                 "status" => "Select Data Success",
-                "result" => $query->result()
+                "result" => $query->result(),
             ]);
-        }else{
+        } else {
             echo json_encode([
-                "msg" => "ดึงข้อมูล Item ไม่สำเร็จ",
-                "status" => "Select Data Not Success"
+                "msg"    => "ดึงข้อมูล Item ไม่สำเร็จ",
+                "status" => "Select Data Not Success",
             ]);
         }
+    }
+
+    public function getCompareStatusList()
+    {
+        $this->db_compare->select('status');
+        $this->db_compare->from('compare_status');
+        $this->db_compare->order_by('status', 'ASC');
+        $query = $this->db_compare->get();
+        return $query->result();
     }
 
 }

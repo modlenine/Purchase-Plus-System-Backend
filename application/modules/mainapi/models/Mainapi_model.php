@@ -722,10 +722,20 @@ class Mainapi_model extends CI_Model {
             $prcode = concode($plantype);
             $ecodepost = $this->input->post("ecodepost");
             $userpost = $this->input->post("userpost");
-            $m_invest_ecodefix = $this->input->post("m_invest_ecodefix");
 
             $formno = $this->input->post("formno");
             $oldprno = $this->input->post("prno");
+
+            $compare_formno = $this->input->post("compare_formno");
+            //check compare formno
+            $oldCompareFormno  = $this->checkCompareFormno($compare_formno , $formno);
+            if ($oldCompareFormno !== null) {
+                // ทำการอัพเดตสถานะของ Compare เดิมเป็น "Compare Approved"
+                $this->db_compare->where('formno', $oldCompareFormno);
+                $this->db_compare->update('compare_master', [
+                    'compare_status' => 'Compare Approved'
+                ]);
+            }
 
             // check formcode
             $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
@@ -752,7 +762,7 @@ class Mainapi_model extends CI_Model {
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                         "m_version_pr" => 1,
                         "m_version_status" => "active",
-                        "m_invest_ecodefix" => $m_invest_ecodefix
+                        "m_compare_formno" => $compare_formno
                     );
                 }else{
                     $arsaveHead = array(
@@ -778,7 +788,7 @@ class Mainapi_model extends CI_Model {
                         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                         "m_version_pr" => 1,
                         "m_version_status" => "active",
-                        "m_invest_ecodefix" => $m_invest_ecodefix
+                        "m_compare_formno" => $compare_formno
                     );
                 }
             }else if($sqlcheckformcode->row()->m_dataareaid != $dataareaid){
@@ -805,13 +815,19 @@ class Mainapi_model extends CI_Model {
                     "m_datetimepost_modify" => date("Y-m-d H:i:s"),
                     "m_version_pr" => 1,
                     "m_version_status" => "active",
-                    "m_invest_ecodefix" => $m_invest_ecodefix
+                    "m_compare_formno" => $compare_formno
                 );
             }
 
             $this->db->where("m_formno" , $formno);
             $this->db->update("main" , $arsaveHead);
             //Head
+
+            //update compare status new
+            $this->db_compare->where('formno', $compare_formno);
+            $this->db_compare->update('compare_master', [
+                'compare_status' => 'Compare Used'
+            ]);
 
             // Detail
             // Delete data

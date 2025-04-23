@@ -38,14 +38,14 @@ class Compareapi extends MX_Controller
     {
         header('Content-Type: application/json');
 
-        $formno = $this->input->post('formno');
+        $formno   = $this->input->post('formno');
         $deptcode = $this->input->post("deptcode");
         if (empty($formno)) {
             echo json_encode(['status' => 'error', 'message' => 'Formno is required']);
             return;
         }
 
-        $compare = $this->compareapi->getCompareMasterByFormno($formno , $deptcode);
+        $compare = $this->compareapi->getCompareMasterByFormno($formno, $deptcode);
         if (! $compare) {
             echo json_encode(['status' => 'error', 'message' => 'Compare not found']);
             return;
@@ -287,6 +287,23 @@ class Compareapi extends MX_Controller
     public function getItemData_Compare()
     {
         $this->compareapi->getItemData_Compare();
+    }
+
+    public function getCompareStatus()
+    {
+        $result = $this->compareapi->getCompareStatusList();
+
+        if (! empty($result)) {
+            echo json_encode([
+                "status" => "success",
+                "result" => $result,
+            ]);
+        } else {
+            echo json_encode([
+                "status" => "error",
+                "msg"    => "ไม่พบข้อมูลสถานะ",
+            ]);
+        }
     }
 
 }
