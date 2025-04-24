@@ -67,7 +67,7 @@ class Compareapi_model extends CI_Model
     public function saveCompareVendor()
     {
         //checkdata
-        if (! empty($this->input->post("dataareaid")) && ! empty($this->input->post("selected_vendor_accountnum"))) {
+        if (! empty($this->input->post("dataareaid")) && ! empty($this->input->post("selected_vendor_name"))) {
             $this->db_compare->trans_start();
 
             // Master Data
@@ -133,6 +133,7 @@ class Compareapi_model extends CI_Model
                         "vendor_index"   => $index,
                         "item_index"     => $item_index,
                         "price"          => $price,
+                        "no_quoted"      => $item['no_quoted'][$index] ?? false,  // ✅ ไม่ต้องแปลง
                     ];
 
                     $this->db_compare->insert("compare_items", $itemdetail);
@@ -196,6 +197,9 @@ class Compareapi_model extends CI_Model
                 $modify_datetime     = Date("Y-m-d H:i:s");
                 $selectedVendorIndex = $this->input->post("selectedVendorIndex");
 
+                //vendor
+                $vendors = json_decode($this->input->post("vendors"), true);
+
                 // Item
                 $items = json_decode($this->input->post("items"), true);
 
@@ -215,6 +219,20 @@ class Compareapi_model extends CI_Model
                 $this->db_compare->where("id", $compare_id);
                 $this->db_compare->update("compare_master", $master_data);
 
+                //vendor data update
+                foreach ($vendors as $index => $vendor) {
+                    $vendor_data = [
+                        "compare_id"     => $compare_id,
+                        "compare_formno" => $formno,
+                        "vendor_index"   => $index,
+                        "vendor_name"    => $vendor['vendor_name'],
+                        "accountnum"     => $vendor['accountnum'],
+                        "dataareaid"     => $vendor['dataareaid'],
+                    ];
+                    $this->db_compare->where("id" , $vendor['id']);
+                    $this->db_compare->update("compare_vendors", $vendor_data);
+                }
+
                 //Delete old data
                 $this->db_compare->where("compare_id", $compare_id);
                 $this->db_compare->delete("compare_items");
@@ -232,6 +250,7 @@ class Compareapi_model extends CI_Model
                             "vendor_index"   => $index,
                             "item_index"     => $item_index,
                             "price"          => $price,
+                            "no_quoted"       => $item['no_quoted'][$index] ?? false  // ✅ ไม่ต้องแปลง
                         ];
 
                         $this->db_compare->insert("compare_items", $itemdetail);
@@ -297,7 +316,7 @@ class Compareapi_model extends CI_Model
 
         // Base SQL
         $baseSQL = "FROM compare_master m
-                    INNER JOIN compare_vendors v ON v.compare_id = m.id AND v.accountnum = m.accountnum
+                    INNER JOIN compare_vendors v ON v.compare_id = m.id AND v.vendor_index = m.vendor_index
                     INNER JOIN compare_items i ON i.compare_id = v.compare_id AND i.vendor_index = v.vendor_index
                     WHERE 1=1";
 

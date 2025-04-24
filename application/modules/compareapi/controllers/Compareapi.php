@@ -67,9 +67,11 @@ class Compareapi extends MX_Controller
                     'itemunit'    => $item->itemunit,
                     'itemgroupid' => $item->itemgroupid,
                     'prices'      => [],
+                    'no_quoted'   => []
                 ];
             }
             $groupedItems[$key]['prices'][$item->vendor_index] = $item->price;
+            $groupedItems[$key]['no_quoted'][$item->vendor_index] = (bool) $item->no_quoted;
         }
 
         // เรียงลำดับตาม item_index

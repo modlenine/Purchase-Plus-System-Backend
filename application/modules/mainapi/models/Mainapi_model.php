@@ -364,7 +364,8 @@ class Mainapi_model extends CI_Model {
             //update Compare Status
             $this->db_compare->where("formno" , $compare_formno);
             $this->db_compare->update("compare_master" , [
-                "compare_status" => "Compare Used"
+                "compare_status" => "Compare Used",
+                "pu_formno" => $formno
             ]);
 
             // Detail
