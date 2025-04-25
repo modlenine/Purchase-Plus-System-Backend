@@ -305,6 +305,7 @@ class Compareapi_model extends CI_Model
 
         $columns = [
             'formno',
+            'pu_formno',
             'items_all',
             'vendor_name',
             'ecode_create',
@@ -390,6 +391,7 @@ class Compareapi_model extends CI_Model
         $finalSQL = "SELECT
                         m.id,
                         m.formno,
+                        m.pu_formno,
                         m.dataareaid,
                         m.accountnum,
                         m.reason,
@@ -415,6 +417,7 @@ class Compareapi_model extends CI_Model
         foreach ($queryPage->result() as $row) {
             $data[] = [
                 'formno'          => $row->formno,
+                'pu_formno'       => $row->pu_formno,
                 'items_all'       => $row->items_all,
                 'vendorname'      => $row->vendor_name,
                 'ecode_create'    => $row->ecode_create,
