@@ -185,10 +185,12 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
               }
             </style>
         '.$body;
+
         if($_SERVER['HTTP_HOST'] != "localhost"){
             $mail->send();
             return 'Message has been sent';
         }
+
         // $mail->send();
         // return 'Message has been sent';
     } catch (Exception $e) {

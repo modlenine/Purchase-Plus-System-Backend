@@ -392,6 +392,7 @@ class Compareapi_model extends CI_Model
                         m.id,
                         m.formno,
                         m.pu_formno,
+                        m.pr_number,
                         m.dataareaid,
                         m.accountnum,
                         m.reason,
@@ -418,6 +419,7 @@ class Compareapi_model extends CI_Model
             $data[] = [
                 'formno'          => $row->formno,
                 'pu_formno'       => $row->pu_formno,
+                'pr_number'       => $row->pr_number,
                 'items_all'       => $row->items_all,
                 'vendorname'      => $row->vendor_name,
                 'ecode_create'    => $row->ecode_create,
@@ -576,18 +578,20 @@ class Compareapi_model extends CI_Model
     public function sendto_manager($formno, $compare_id)
     {
 
+        
+        $emaildata = getdataforemail_compare($compare_id);
+
+        $userDeptCode = $emaildata->deptcode_create;
         if ($_SERVER['HTTP_HOST'] == "localhost") {
-            $adminLink = "http://localhost:8080/compareview/$formno";
+            $adminLink = "http://localhost:8080/compareview/$formno/$userDeptCode";
         } else if ($_SERVER['HTTP_HOST'] == "intranet.saleecolour.com") {
-            $adminLink = "https://intranet.saleecolour.com/intsys/purchaseplus/compareview/$formno";
+            $adminLink = "https://intranet.saleecolour.com/intsys/purchaseplus/compareview/$formno/$userDeptCode";
         } else {
-            $adminLink = "https://intracent.saleecolour.com/intsys/purchaseplus/compareview/$formno";
+            $adminLink = "https://intracent.saleecolour.com/intsys/purchaseplus/compareview/$formno/$userDeptCode";
         }
 
         $subject = "มีรายการ Compare Vendor ใหม่รอตรวจสอบข้อมูล";
-
         $short_url = $adminLink;
-        $emaildata = getdataforemail_compare($compare_id);
 
         $body = '
             <h2>มีรายการ Compare Vendor ใหม่รอตรวจสอบข้อมูล</h2>
@@ -615,7 +619,7 @@ class Compareapi_model extends CI_Model
         $body .= '
             <tr>
                 <td><strong>ตรวจสอบรายการ</strong></td>
-                <td colspan="3"><a href="' . $adminLink . '">' . $formno . '</a></td>
+                <td colspan="3"><a href="' . $adminLink . '">' . $formno .'</a></td>
             </tr>
 
             <tr>
@@ -905,8 +909,9 @@ class Compareapi_model extends CI_Model
 
     public function getItemData_Compare()
     {
-        if (! empty($this->input->post("formno"))) {
+        if ($this->input->post("formno") != "" && $this->input->post("vendor_index") != "") {
             $formno = $this->input->post("formno");
+            $vendor_index = $this->input->post("vendor_index");
             $query  = $this->db_compare->query("SELECT
                 m.vendor_index,
                 m.formno,
@@ -923,7 +928,7 @@ class Compareapi_model extends CI_Model
             INNER JOIN compare_items i
                 ON i.vendor_index = m.vendor_index
                 AND i.compare_formno = m.formno
-            WHERE m.formno = ?", [$formno]);
+            WHERE m.formno = ? AND i.vendor_index = ? AND i.no_quoted = ?", [$formno , $vendor_index , 0]);
 
             echo json_encode([
                 "msg"    => "ดึงข้อมูล Item สำเร็จ",

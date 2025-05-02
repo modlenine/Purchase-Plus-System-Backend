@@ -365,6 +365,7 @@ class Mainapi_model extends CI_Model
             $this->db_compare->update("compare_master", [
                 "compare_status" => "Compare Used",
                 "pu_formno"      => $formno,
+                "pr_number"      => $prno,
                 "last_updated"   => date("Y-m-d H:i:s"),
             ]);
 
@@ -451,6 +452,7 @@ class Mainapi_model extends CI_Model
                 $this->db_compare->update('compare_master', [
                     'compare_status' => 'Compare Approved',
                     'pu_formno'      => null,
+                    'pr_number'      => null
                 ]);
             }
 
@@ -601,6 +603,7 @@ class Mainapi_model extends CI_Model
             $this->db_compare->update('compare_master', [
                 "compare_status" => "Compare Used",
                 "pu_formno"      => $formno,
+                "pr_number"      => $prno,
                 "last_updated"   => date("Y-m-d H:i:s"),
             ]);
 
@@ -717,6 +720,7 @@ class Mainapi_model extends CI_Model
                 $this->db_compare->update('compare_master', [
                     'compare_status' => 'Compare Approved',
                     'pu_formno'      => null,
+                    'pr_number'      => null,
                     'last_updated'   => date("Y-m-d H:i:s"),
                 ]);
             }
@@ -812,6 +816,7 @@ class Mainapi_model extends CI_Model
             $this->db_compare->update('compare_master', [
                 'compare_status' => 'Compare Used',
                 'pu_formno'      => $formno,
+                'pr_number'      => $prno,
                 'last_updated'   => date("Y-m-d H:i:s"),
             ]);
 
@@ -1216,6 +1221,7 @@ class Mainapi_model extends CI_Model
             $arsaveCancel = [
                 "m_status"         => "User Cancel",
                 "m_datetimeupdate" => date("Y-m-d H:i:s"),
+                "m_compare_formno" => null
             ];
             $this->db->where("m_formno", $formno);
             $this->db->update("main", $arsaveCancel);
@@ -1226,6 +1232,7 @@ class Mainapi_model extends CI_Model
                 $this->db_compare->update("compare_master", [
                     "compare_status" => "Compare Approved",
                     "pu_formno"      => null,
+                    "pr_number"      => null,
                     "last_updated"   => date("Y-m-d H:i:s"),
                 ]);
             }

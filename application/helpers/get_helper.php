@@ -264,6 +264,28 @@ function getCompanynameTH($dataareaid)
     }
 }
 
+function getCompanynameEN($dataareaid)
+{
+    $companyName = "";
+    if(!empty($dataareaid)){
+        switch($dataareaid){
+            case "sln":
+                $companyName = "Salee Colour Public Company Limited.";
+                break;
+            case "ca":
+                $companyName = "Composite Asia Co.,Ltd.";
+                break;
+            case "tbb":
+                $companyName = "The bubbles Co.,Ltd.";
+                break;
+            case "st":
+                $companyName = "Subterra Co.,Ltd.";
+                break;
+        }
+        return $companyName;
+    }
+}
+
 function getExecutiveData($formno)
 {
     if(!empty($formno))
