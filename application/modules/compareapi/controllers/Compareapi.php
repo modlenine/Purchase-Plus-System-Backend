@@ -103,6 +103,7 @@ class Compareapi extends MX_Controller
                 'deptcode_approval' => $compare->deptcode_approval,
                 'datetime_approval' => conDateTimeFromDb($compare->datetime_approval),
                 'status_approval'   => $compare->status_approval,
+                'docnumber'         => $compare->docnumber,
             ],
         ]);
     }

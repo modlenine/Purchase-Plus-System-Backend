@@ -82,6 +82,7 @@ class Compareapi_model extends CI_Model
             $user_name           = $this->input->post("user_name");
             $created_datetime    = Date("Y-m-d H:i:s");
             $selectedVendorIndex = $this->input->post("selectedVendorIndex");
+            $docnumber           = "PC-F-016-01-13-05-68";
 
             //vendor
             $vendors = json_decode($this->input->post("vendors"), true);
@@ -100,6 +101,7 @@ class Compareapi_model extends CI_Model
                 "deptcode_create" => $user_deptcode,
                 "datetime_create" => $created_datetime,
                 "compare_status"  => "Pending Send",
+                "docnumber"       => $docnumber,
                 "last_updated"    => Date("Y-m-d H:i:s"),
             ];
 
@@ -381,6 +383,8 @@ class Compareapi_model extends CI_Model
                 $params[] = "%{$search}%";
             }
         }
+
+        $baseSQL .="AND i.no_quoted = 0";
 
         // ดึงจำนวน record ทั้งหมด (ก่อน limit)
         $countSQL     = "SELECT COUNT(DISTINCT m.id) as total " . $baseSQL;
@@ -843,7 +847,7 @@ class Compareapi_model extends CI_Model
         FROM compare_master m
         INNER JOIN compare_vendors v ON v.compare_id = m.id AND v.accountnum = m.accountnum
         INNER JOIN compare_items i ON i.compare_id = v.compare_id AND i.vendor_index = v.vendor_index
-        WHERE m.compare_status IN ('Compare Approved') AND m.deptcode_create = '$deptcode_user'
+        WHERE m.compare_status IN ('Compare Approved') AND m.deptcode_create = '$deptcode_user' AND i.no_quoted = 0
         GROUP BY m.id
         HAVING
             m.formno LIKE '%$keyword%' OR

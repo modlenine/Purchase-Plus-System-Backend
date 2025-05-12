@@ -34,6 +34,7 @@ class Pdf extends MX_Controller
         $ecode_approval        = $this->input->post("ecode_approval");
         $datetime_approval     = $this->input->post("datetime_approval");
         $vendorCount           = $this->input->post("vendorCount");
+        $docnumber             = $this->input->post("docnumber");
 
         $current_page = 0;
         $total_pages  = 0;
@@ -58,6 +59,7 @@ class Pdf extends MX_Controller
         $this->total_pages           = $total_pages;
         $this->vendors               = $vendors;
         $this->items                 = $items;
+        $this->docnumber             = $docnumber;
 
         // Set footer data
         // create new PDF document
@@ -84,6 +86,7 @@ class Pdf extends MX_Controller
             $this->total_pages,
             $this->vendors,
             $this->items,
+            $this->docnumber,
         );
 
         // set document information
@@ -118,6 +121,8 @@ class Pdf extends MX_Controller
         $page = 1;
         $pdf->AddPage();
         $current_page = 1;
+        $y = $pdf->GetY(); // ตำแหน่ง Y ล่าสุดจาก Section 3
+        $pdf->SetY($y + 3); // เลื่อนลงนิดหน่อยแบบพอดี
 
         $pdf->SetCellPadding(0);           // กำหนดการเพิ่มพื้นที่ระหว่างเซลล์เป็น 0
         $pdf->SetCellMargins(0, 60, 0, 0); // กำหนดการเพิ่มขอบรอบของเซลล์เป็น 0
@@ -151,11 +156,12 @@ class Pdf extends MX_Controller
         // วาดหัวตาราง
         // ========================
         $pdf->SetFillColor(230, 230, 230);
-        $pdf->Cell($productColWidth, 10, 'ชื่อสินค้า', 1, 0, 'C', 1);
+        $pdf->Cell($productColWidth, 12, 'ชื่อสินค้า', 1, 0, 'C', 1);
 
         foreach ($vendors as $vendor) {
             $vendorName = isset($vendor['vendor_name']) ? $vendor['vendor_name'] : '-';
-            $pdf->Cell($vendorColWidth, 10, $vendorName, 1, 0, 'C', 1);
+            // $pdf->Cell($vendorColWidth, 10, $vendorName, 1, 0, 'C', 1);
+            $pdf->MultiCell($vendorColWidth, 12, $vendorName, 1, 'C', true, 0, '', '', true, 0, false, true, 12, 'M');
         }
         $pdf->Ln();
 
@@ -181,11 +187,12 @@ class Pdf extends MX_Controller
                 // วาดหัวตารางใหม่บนหน้าถัดไป
                 $pdf->SetFont('thsarabunb', '', 12);
                 $pdf->SetFillColor(230, 230, 230);
-                $pdf->Cell($productColWidth, 10, 'ชื่อสินค้า', 1, 0, 'C', 1);
+                $pdf->Cell($productColWidth, 12, 'ชื่อสินค้า', 1, 0, 'C', 1);
     
                 foreach ($vendors as $vendor) {
                     $vendorName = isset($vendor['vendor_name']) ? $vendor['vendor_name'] : '-';
-                    $pdf->Cell($vendorColWidth, 10, $vendorName, 1, 0, 'C', 1);
+                    // $pdf->Cell($vendorColWidth, 10, $vendorName, 1, 0, 'C', 1);
+                    $pdf->MultiCell($vendorColWidth, 12, $vendorName, 1, 'C', true, 0, '', '', true, 0, false, true, 12, 'M');
                 }
                 $pdf->Ln();
             }
@@ -252,9 +259,10 @@ class MYPDF extends TCPDF
     public $total_pages;
     public $vendors;
     public $items;
+    public $docnumber;
 
     // Constructor to initialize properties
-    public function __construct($selectedVendorIndex, $vendorSelectionReason, $dataareaid, $accountnum, $user_create, $datetime_create, $dept_create, $ecode_create, $compare_formno, $compare_status, $approvalStatus, $approvalMemo, $user_approval, $ecode_approval, $datetime_approval, $vendorCount, $current_page, $total_pages, $vendors, $items
+    public function __construct($selectedVendorIndex, $vendorSelectionReason, $dataareaid, $accountnum, $user_create, $datetime_create, $dept_create, $ecode_create, $compare_formno, $compare_status, $approvalStatus, $approvalMemo, $user_approval, $ecode_approval, $datetime_approval, $vendorCount, $current_page, $total_pages, $vendors, $items , $docnumber
     ) {
         parent::__construct();
         $this->selectedVendorIndex   = $selectedVendorIndex;
@@ -277,13 +285,14 @@ class MYPDF extends TCPDF
         $this->total_pages           = $total_pages;
         $this->vendors               = $vendors;
         $this->items                 = $items;
+        $this->docnumber             = $docnumber;
     }
 
     // Page footer
     public function Footer()
     {
         // Position at 15 mm from bottom
-        $this->SetY(-60);
+        $this->SetY(-50);
 
         // set cell padding
         $this->setCellPaddings(1, 1, 1, 1);
@@ -304,41 +313,41 @@ class MYPDF extends TCPDF
         $this->Ln(4);
         //section Footer 2
 
-// ตั้งค่าฟอนต์
-$this->SetFont('thsarabunb', '', 14);
+        // ตั้งค่าฟอนต์
+        $this->SetFont('thsarabunb', '', 14);
 
-// กำหนดความกว้างของแต่ละคอลัมน์
-$columnWidth = 66; // (ประมาณ 200mm / 3)
+        // กำหนดความกว้างของแต่ละคอลัมน์
+        $columnWidth = 66; // (ประมาณ 200mm / 3)
 
-$this->SetFillColor(255, 255, 255); // สีพื้นหลังขาว
+        $this->SetFillColor(255, 255, 255); // สีพื้นหลังขาว
 
-// พิมพ์หัวคอลัมน์
-$this->Cell($columnWidth, 8, 'ผู้ร้องขอ', 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, 'เจ้าหน้าที่จัดหา', 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, 'ผู้อนุมัติ', 0, 1, 'C', true); // 1 = ขึ้นบรรทัดใหม่
+        // พิมพ์หัวคอลัมน์
+        $this->Cell($columnWidth, 8, 'ผู้ร้องขอ', 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, 'เจ้าหน้าที่จัดหา', 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, 'ผู้อนุมัติ', 0, 1, 'C', true); // 1 = ขึ้นบรรทัดใหม่
 
-// ดึงข้อมูล
-$userRequester  = !empty($this->user_create) ? $this->user_create : "-";
-$userPurchaser  = !empty($this->user_create) ? $this->user_create : "-";
-$userApprover   = (!empty($this->user_approval) && $this->user_approval !== "null") ? $this->user_approval : "";
+        // ดึงข้อมูล
+        $userRequester  = !empty($this->user_create) ? $this->user_create : "-";
+        $userPurchaser  = !empty($this->user_create) ? $this->user_create : "-";
+        $userApprover   = (!empty($this->user_approval) && $this->user_approval !== "null") ? $this->user_approval : "";
 
-// วันที่
-$dateRequester = !empty($this->datetime_create) ? $this->datetime_create : "-";
-$datePurchaser = !empty($this->datetime_create) ? $this->datetime_create : "-";
-$dateApprover  = (!empty($this->datetime_approval) && $this->datetime_approval !== "null") ? $this->datetime_approval : "";
+        // วันที่
+        $dateRequester = !empty($this->datetime_create) ? $this->datetime_create : "-";
+        $datePurchaser = !empty($this->datetime_create) ? $this->datetime_create : "-";
+        $dateApprover  = (!empty($this->datetime_approval) && $this->datetime_approval !== "null") ? $this->datetime_approval : "";
 
-// พิมพ์บรรทัดข้อมูลชื่อ
-$this->Cell($columnWidth, 8, $userRequester, 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, $userPurchaser, 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, $userApprover, 0, 1, 'C', true);
+        // พิมพ์บรรทัดข้อมูลชื่อ
+        $this->Cell($columnWidth, 8, $userRequester, 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, $userPurchaser, 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, $userApprover, 0, 1, 'C', true);
 
-// พิมพ์บรรทัดข้อมูลวันที่
-$this->Cell($columnWidth, 8, "วันที่: " . $dateRequester, 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, "วันที่: " . $datePurchaser, 0, 0, 'C', true);
-$this->Cell($columnWidth, 8, "วันที่: " . $dateApprover, 0, 1, 'C', true);
+        // พิมพ์บรรทัดข้อมูลวันที่
+        $this->Cell($columnWidth, 8, "วันที่: " . $dateRequester, 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, "วันที่: " . $datePurchaser, 0, 0, 'C', true);
+        $this->Cell($columnWidth, 8, "วันที่: " . $dateApprover, 0, 1, 'C', true);
 
-// เว้นระยะ
-$this->Ln(2);
+        // เว้นระยะ
+        $this->Ln(2);
 
 
         // ดึงตำแหน่ง Y ปัจจุบัน
@@ -352,12 +361,12 @@ $this->Ln(2);
         //section Footer 6
 
                     // ขยับลงมา 15 mm จากล่าง
-    $this->SetY(-15);
-    $this->SetFont('thsarabunb', '', 12);
+        $this->SetY(-15);
+        $this->SetFont('thsarabunb', '', 12);
 
-    // พิมพ์เลขหน้า Page X / Y
-    $pageNumTxt = 'Page ' . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
-    $this->Cell(0, 10, $pageNumTxt, 0, 0, 'R');
+        // พิมพ์เลขหน้า Page X / Y
+        $pageNumTxt = 'Page ' . $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+        $this->Cell(0, 10, $pageNumTxt, 0, 0, 'R');
     }
 
     public function Header()
@@ -384,6 +393,10 @@ $this->Ln(2);
                                                           // กำหนดตำแหน่ง X,Y ใหม่
         $this->SetXY($xRight, 5);                         // ใช้ Y = 5 เท่ากันกับ 'รายการ Compare Vendor'
                                                           // วาด Compare Status
+        $this->MultiCell(60, 5, $this->docnumber, 0, 'R', 0, 1, '', '', true);
+
+        // ➕ Status (บรรทัดถัดจาก doc no)
+        $this->SetXY($xRight, $this->GetY());
         $this->MultiCell(60, 5, 'Status: ' . $this->compare_status, 0, 'R', 0, 1, '', '', true);
 
         // วาดเส้นใต้ข้อความให้ยาวทั้งหน้า
@@ -439,11 +452,15 @@ $this->Ln(2);
             $this->SetX(15);
             $this->MultiCell(168, 8, "ไม่พบข้อมูลผู้จำหน่าย", 0, 'L', 0, 1, '', '', true);
         }
-        $y         = $this->GetY() - 8;
+
+        
+        $y = 50;
         $pageWidth = $this->getPageWidth() - $this->getMargins()['left'] - $this->getMargins()['right'];
         $this->Line($this->getMargins()['left'], $y + 10, $pageWidth + $this->getMargins()['left'], $y + 10);
-        $this->Ln(4);
+        // $this->Ln(15);
 
+        $y = 50; // ตำแหน่ง Y ล่าสุดจาก Section 3
+        $this->SetY($y + 15); // เลื่อนลงนิดหน่อยแบบพอดี
         $this->SetFont('thsarabunb', 'B', 16);
         $this->MultiCell(198, 5, 'รายการสินค้า', 0, 'C', 0, 1, '', '', true);
 

@@ -446,7 +446,7 @@ class Mainapi_model extends CI_Model
             $compare_formno = $this->input->post("compare_formno");
             //check compare formno
             $oldCompareFormno = $this->checkCompareFormno($compare_formno, $formno);
-            if ($oldCompareFormno !== null) {
+            if ($oldCompareFormno !== null && $oldCompareFormno !== "") {
                 // ทำการอัพเดตสถานะของ Compare เดิมเป็น "Compare Approved"
                 $this->db_compare->where('formno', $oldCompareFormno);
                 $this->db_compare->update('compare_master', [
@@ -455,6 +455,7 @@ class Mainapi_model extends CI_Model
                     'pr_number'      => null
                 ]);
             }
+
 
             // check formcode
             $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
@@ -545,55 +546,6 @@ class Mainapi_model extends CI_Model
                 ];
             }
 
-            // if($sqlcheckformcode->row()->m_prcode == $prcode){
-            //     $arsaveHead = array(
-            //         "m_dataareaid" => $dataareaid,
-            //         "m_costcenter" => $costcenter,
-            //         "m_department" => $department,
-            //         "m_itemcategory" => $itemcategory,
-            //         "m_ecode" => $ecode,
-            //         "m_vendid" => $vendid,
-            //         "m_vendname" => $vendname,
-            //         "m_paymtermid" => $paymtermid,
-            //         "m_datetime_create" => date("Y-m-d H:i:s"),
-            //         "m_date_req" => condate_todb($datetimereq),
-            //         "m_date_delivery" => condate_todb($datetimedelivery),
-            //         "m_memo" => $memo ,
-            //         "m_status" => "Wait Send Data",
-            //         "m_userpost_modify" => $userpost,
-            //         "m_ecodepost_modify" => $ecodepost,
-            //         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
-            //         "m_version_pr" => 1,
-            //         "m_version_status" => "active",
-            //         "m_invest_ecodefix" => $m_invest_ecodefix
-            //     );
-            // }else{
-            //     $arsaveHead = array(
-            //         "m_prcode" => $prcode,
-            //         "m_prno" => $prno,
-            //         "m_dataareaid" => $dataareaid,
-            //         "m_plantype" => $plantype,
-            //         "m_itemcategory" => $itemcategory,
-            //         "m_costcenter" => $costcenter,
-            //         "m_department" => $department,
-            //         "m_ecode" => $ecode,
-            //         "m_vendid" => $vendid,
-            //         "m_vendname" => $vendname,
-            //         "m_paymtermid" => $paymtermid,
-            //         "m_datetime_create" => date("Y-m-d H:i:s"),
-            //         "m_date_req" => condate_todb($datetimereq),
-            //         "m_date_delivery" => condate_todb($datetimedelivery),
-            //         "m_memo" => $memo ,
-            //         "m_status" => "Wait Send Data",
-            //         "m_userpost_modify" => $userpost,
-            //         "m_ecodepost_modify" => $ecodepost,
-            //         "m_datetimepost_modify" => date("Y-m-d H:i:s"),
-            //         "m_version_pr" => 1,
-            //         "m_version_status" => "active",
-            //         "m_invest_ecodefix" => $m_invest_ecodefix
-            //     );
-            // }
-
             $this->db->where("m_formno", $formno);
             $this->db->update("main", $arsaveHead);
             //Head
@@ -657,6 +609,23 @@ class Mainapi_model extends CI_Model
         }
         echo json_encode($output);
 
+    }
+
+    private function checkCompareFormnoNull($formno)
+    {
+        if($formno != ""){
+            $sql = $this->db->query("SELECT
+            m_compare_formno
+            FROM main
+            WHERE m_formno = ? AND m_compare_formno IS NOT NULL AND m_compare_formno != ''
+            " , [$formno]);
+
+            if($sql->num_rows() > 0){
+                return $sql->row()->m_compare_formno;
+            }else{
+                return "";
+            }
+        }
     }
 
     private function checkCompareFormno($compare_formno, $formno)
