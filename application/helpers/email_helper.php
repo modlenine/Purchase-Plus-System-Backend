@@ -125,9 +125,6 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
             }
         }
 
-        foreach($to as $email){
-            $mail->AddAddress($email);
-        }
 
         if(!empty($cc)){
             foreach($cc as $email){
@@ -135,9 +132,6 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
             }
         }
 
-        foreach($cc as $email){
-            $mail->AddCC($email);
-        }
 
         // $mail->AddAddress("chainarong039@gmail.com");
         $mail->AddBCC("chainarong_k@saleecolour.com");
