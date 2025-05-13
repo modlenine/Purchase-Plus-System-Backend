@@ -327,6 +327,10 @@ class Compareapi_model extends CI_Model
 
         if (! empty($userposi) && $userposi <= 75) {
             // เงื่อนไขการเข้าถึงข้อมูลตามแผนก
+            // if (! empty($userDeptcode) && !in_array($userDeptcode, ['1002'])) {
+            //     $baseSQL .= " AND m.deptcode_create = ?";
+            //     $params[] = $userDeptcode;
+            // }
             if (! empty($userDeptcode)) {
                 $baseSQL .= " AND m.deptcode_create = ?";
                 $params[] = $userDeptcode;
@@ -384,7 +388,7 @@ class Compareapi_model extends CI_Model
             }
         }
 
-        $baseSQL .="AND i.no_quoted = 0";
+        $baseSQL .=" AND i.no_quoted = 0";
 
         // ดึงจำนวน record ทั้งหมด (ก่อน limit)
         $countSQL     = "SELECT COUNT(DISTINCT m.id) as total " . $baseSQL;
@@ -443,7 +447,18 @@ class Compareapi_model extends CI_Model
 
     public function getCompareMasterByFormno($formno, $deptcode)
     {
-        return $this->db_compare->where(['formno' => $formno, 'deptcode_create' => $deptcode])
+        // ถ้า deptcode คือ 1002 → ดูได้ทั้ง 1002 และ 1004
+        // if ($deptcode == '1002') {
+        //     return $this->db_compare
+        //         ->where('formno', $formno)
+        //         ->where_in('deptcode_create', ['1002', '1004'])
+        //         ->get('compare_master')
+        //         ->row();
+        // }
+
+        // แผนกอื่น → ดูเฉพาะของตัวเอง
+        return $this->db_compare
+            ->where(['formno' => $formno, 'deptcode_create' => $deptcode])
             ->get('compare_master')
             ->row();
     }

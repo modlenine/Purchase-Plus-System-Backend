@@ -119,25 +119,25 @@ function sendemail($subject , $body , $to , $cc , $pathfile)
         $mail->FromName     = "Purchase Plus System";
         $mail->Port         = 587;                                    // TCP port to connect to
 
-        // if(!empty($to)){
-        //     foreach($to as $email){
-        //         $mail->AddAddress($email);
-        //     }
-        // }
+        if(!empty($to)){
+            foreach($to as $email){
+                $mail->AddAddress($email);
+            }
+        }
 
-        // foreach($to as $email){
-        //     $mail->AddAddress($email);
-        // }
+        foreach($to as $email){
+            $mail->AddAddress($email);
+        }
 
-        // if(!empty($cc)){
-        //     foreach($cc as $email){
-        //         $mail->AddCC($email);
-        //     }
-        // }
+        if(!empty($cc)){
+            foreach($cc as $email){
+                $mail->AddCC($email);
+            }
+        }
 
-        // foreach($cc as $email){
-        //     $mail->AddCC($email);
-        // }
+        foreach($cc as $email){
+            $mail->AddCC($email);
+        }
 
         // $mail->AddAddress("chainarong039@gmail.com");
         $mail->AddBCC("chainarong_k@saleecolour.com");

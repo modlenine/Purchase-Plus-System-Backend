@@ -86,7 +86,7 @@ class Pdf extends MX_Controller
             $this->total_pages,
             $this->vendors,
             $this->items,
-            $this->docnumber,
+            $this->docnumber
         );
 
         // set document information
