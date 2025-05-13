@@ -299,6 +299,7 @@ class Compareapi_model extends CI_Model
 
         $userDeptcode = $request["userData_deptcode"];
         $userposi     = $request['userData_posi'];
+        $userData_ecode = $request['userData_ecode'];
 
         $filterStartDate = $request['filter_startdate'] ?? '';
         $filterEndDate   = $request['filter_enddate'] ?? '';
@@ -331,7 +332,7 @@ class Compareapi_model extends CI_Model
             //     $baseSQL .= " AND m.deptcode_create = ?";
             //     $params[] = $userDeptcode;
             // }
-            if (! empty($userDeptcode)) {
+            if (! empty($userDeptcode) && !in_array($userData_ecode,['M1809'])) {
                 $baseSQL .= " AND m.deptcode_create = ?";
                 $params[] = $userDeptcode;
             }
@@ -445,16 +446,15 @@ class Compareapi_model extends CI_Model
         ]);
     }
 
-    public function getCompareMasterByFormno($formno, $deptcode)
+    public function getCompareMasterByFormno($formno, $deptcode , $ecode)
     {
         // ถ้า deptcode คือ 1002 → ดูได้ทั้ง 1002 และ 1004
-        // if ($deptcode == '1002') {
-        //     return $this->db_compare
-        //         ->where('formno', $formno)
-        //         ->where_in('deptcode_create', ['1002', '1004'])
-        //         ->get('compare_master')
-        //         ->row();
-        // }
+        if ($ecode == 'M1809') {
+            return $this->db_compare
+                ->where('formno', $formno)
+                ->get('compare_master')
+                ->row();
+        }
 
         // แผนกอื่น → ดูเฉพาะของตัวเอง
         return $this->db_compare

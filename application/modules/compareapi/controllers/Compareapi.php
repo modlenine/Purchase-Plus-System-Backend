@@ -40,12 +40,13 @@ class Compareapi extends MX_Controller
 
         $formno   = $this->input->post('formno');
         $deptcode = $this->input->post("deptcode");
+        $ecode = $this->input->post("ecode");
         if (empty($formno)) {
             echo json_encode(['status' => 'error', 'message' => 'Formno is required']);
             return;
         }
 
-        $compare = $this->compareapi->getCompareMasterByFormno($formno, $deptcode);
+        $compare = $this->compareapi->getCompareMasterByFormno($formno, $deptcode , $ecode);
         if (! $compare) {
             echo json_encode(['status' => 'error', 'message' => 'Compare not found']);
             return;
