@@ -97,57 +97,130 @@ class Mainapi_model extends CI_Model
         echo json_encode($output);
     }
 
-    public function getVendData()
-    {
-        if (! empty($this->input->post("dataareaid")) && ! empty($this->input->post("vendorname"))) {
-            $dataareaid = $this->input->post("dataareaid");
-            $vendorname = $this->input->post("vendorname");
-            $sql        = $this->db_mssql->query("SELECT
-                a.accountnum AS accountnum,
-                a.name AS name,
-                a.address AS address,
-                a.paymtermid AS paymtermid,
-                a.currency AS currency,
-                a.email AS email,
-                a.dataareaid AS dataareaid,
+    // public function getVendData()
+    // {
+    //     if (! empty($this->input->post("dataareaid")) && ! empty($this->input->post("vendorname"))) {
+    //         $dataareaid = $this->input->post("dataareaid");
+    //         $vendorname = $this->input->post("vendorname");
+    //         $sql        = $this->db_mssql->query("SELECT
+    //             a.accountnum AS accountnum,
+    //             a.name AS name,
+    //             a.address AS address,
+    //             a.paymtermid AS paymtermid,
+    //             a.currency AS currency,
+    //             a.email AS email,
+    //             a.dataareaid AS dataareaid,
+    //             b.txt AS currencytxt,
+    //             b.currencycodeiso AS currencycodeiso,
+    //             c.exchrate,
+    //             c.fromdate
+    //         FROM
+    //             vendtable a
+    //         INNER JOIN
+    //             currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
+    //         CROSS APPLY (
+    //             SELECT TOP 1
+    //                 c.exchrate,
+    //                 c.fromdate
+    //             FROM
+    //                 exchrates c
+    //             WHERE
+    //                 c.currencycode = b.currencycode
+    //                 AND c.dataareaid = b.dataareaid
+    //             ORDER BY
+    //                 c.fromdate DESC
+    //         ) c
+    //         WHERE
+    //             a.name LIKE '%$vendorname%'
+    //             AND a.dataareaid = '$dataareaid';
+    //         ");
+
+    //         $output = [
+    //             "msg"    => "ดึงข้อมูลผู้ขายสำเร็จ",
+    //             "status" => "Select Data Success",
+    //             "result" => $sql->result(),
+    //         ];
+    //     } else {
+    //         $output = [
+    //             "msg"    => "ดึงข้อมูลไม่สำเร็จ",
+    //             "status" => "Select Data Not Success",
+    //         ];
+    //     }
+    //     echo json_encode($output);
+    // }
+private function cleanVendorName($name)
+{
+    // คำที่ไม่จำเป็นในการค้นหา
+    $remove = ['บริษัท', 'จำกัด', 'บจก.', 'บมจ.', '.', ',', '(', ')'];
+    $name = str_ireplace($remove, '', $name);
+    return trim(preg_replace('/\s+/', ' ', $name)); // ตัด space ซ้อน
+}
+
+public function getVendData()
+{
+    $dataareaid = $this->input->post("dataareaid");
+    $vendorname = $this->input->post("vendorname");
+
+    if (!empty($dataareaid) && !empty($vendorname)) {
+
+        $cleanedName = $this->cleanVendorName($vendorname);
+        $keywords = explode(" ", $cleanedName);
+
+        $whereSQL = "";
+        $params = [$dataareaid];
+
+        foreach ($keywords as $kw) {
+            if (!empty($kw)) {
+                $whereSQL .= " AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(a.name, 'บริษัท', ''), 'จำกัด', ''), 'บจก.', ''), 'บมจ.', ''), '.', ''), ',', ''), '(', ''), ')', '') LIKE ?";
+                $params[] = "%$kw%";
+            }
+        }
+
+        $sql = $this->db_mssql->query("
+            SELECT
+                a.accountnum,
+                a.name,
+                a.address,
+                a.paymtermid,
+                a.currency,
+                a.email,
+                a.dataareaid,
                 b.txt AS currencytxt,
-                b.currencycodeiso AS currencycodeiso,
+                b.currencycodeiso,
                 c.exchrate,
                 c.fromdate
-            FROM
-                vendtable a
-            INNER JOIN
-                currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
+            FROM vendtable a
+            INNER JOIN currency b ON a.currency = b.currencycode AND a.dataareaid = b.dataareaid
             CROSS APPLY (
-                SELECT TOP 1
-                    c.exchrate,
-                    c.fromdate
-                FROM
-                    exchrates c
-                WHERE
-                    c.currencycode = b.currencycode
-                    AND c.dataareaid = b.dataareaid
-                ORDER BY
-                    c.fromdate DESC
+                SELECT TOP 1 c.exchrate, c.fromdate
+                FROM exchrates c
+                WHERE c.currencycode = b.currencycode AND c.dataareaid = b.dataareaid
+                ORDER BY c.fromdate DESC
             ) c
-            WHERE
-                a.name LIKE '%$vendorname%'
-                AND a.dataareaid = '$dataareaid';
-            ");
+            WHERE a.dataareaid = ? $whereSQL
+        ", $params);
 
-            $output = [
-                "msg"    => "ดึงข้อมูลผู้ขายสำเร็จ",
-                "status" => "Select Data Success",
-                "result" => $sql->result(),
-            ];
-        } else {
-            $output = [
-                "msg"    => "ดึงข้อมูลไม่สำเร็จ",
-                "status" => "Select Data Not Success",
-            ];
-        }
-        echo json_encode($output);
+        echo json_encode([
+            "msg" => "ดึงข้อมูลผู้ขายสำเร็จ",
+            "status" => "Select Data Success",
+            "result" => $sql->result()
+        ]);
+    } else {
+        echo json_encode([
+            "msg" => "ดึงข้อมูลไม่สำเร็จ",
+            "status" => "Select Data Not Success"
+        ]);
     }
+}
+
+
+// 🔧 ฟังก์ชันช่วยล้างคำนำหน้าบริษัท
+private function removeCompanyPrefix($name)
+{
+    $unwanted = ['บริษัท', 'จำกัด', 'บจก.', 'บมจ.', '.', ','];
+    return str_ireplace($unwanted, '', $name);
+}
+
 
     public function getCostcenter()
     {
@@ -452,10 +525,9 @@ class Mainapi_model extends CI_Model
                 $this->db_compare->update('compare_master', [
                     'compare_status' => 'Compare Approved',
                     'pu_formno'      => null,
-                    'pr_number'      => null
+                    'pr_number'      => null,
                 ]);
             }
-
 
             // check formcode
             $sqlcheckformcode = $this->db->query("SELECT m_prcode , m_prno , m_dataareaid FROM main WHERE m_formno = '$formno'");
@@ -613,16 +685,16 @@ class Mainapi_model extends CI_Model
 
     private function checkCompareFormnoNull($formno)
     {
-        if($formno != ""){
+        if ($formno != "") {
             $sql = $this->db->query("SELECT
             m_compare_formno
             FROM main
             WHERE m_formno = ? AND m_compare_formno IS NOT NULL AND m_compare_formno != ''
-            " , [$formno]);
+            ", [$formno]);
 
-            if($sql->num_rows() > 0){
+            if ($sql->num_rows() > 0) {
                 return $sql->row()->m_compare_formno;
-            }else{
+            } else {
                 return "";
             }
         }
@@ -1020,7 +1092,7 @@ class Mainapi_model extends CI_Model
         $primaryKey = 'm_autoid';
 
         $columns = [
-            ['db'  => 'm_formno', 'dt' => 0,
+            ['db'       => 'm_formno', 'dt' => 0,
                 'formatter' => function ($d, $row) {
                     $output = '
                     <a href="' . getViewurl() . 'viewdata/' . $d . '" class="select_formno"
@@ -1030,66 +1102,66 @@ class Mainapi_model extends CI_Model
                     return $output;
                 },
             ],
-            ['db'  => 'm_compare_formno', 'dt' => 1,
+            ['db'       => 'm_compare_formno', 'dt' => 1,
                 'formatter' => function ($d, $row) {
                     $deptcode = isset($row['m_department']) ? $row['m_department'] : '';
-                    $output = '
+                    $output   = '
                 <a href="javascript:void(0)" class="select_compareV_formno"
                     data-compareformno="' . $d . '"
-                    data-deptcode="'.$deptcode.'"
+                    data-deptcode="' . $deptcode . '"
                 ><b>' . $d . '</b></a>
                 ';
                     return $output;
                 },
             ],
-            ['db'  => 'm_dataareaid', 'dt' => 2,
+            ['db'       => 'm_dataareaid', 'dt' => 2,
                 'formatter' => function ($d, $row) {
                     return $d;
                 },
             ],
-            ['db'  => 'm_prno', 'dt' => 3,
+            ['db'       => 'm_prno', 'dt' => 3,
                 'formatter' => function ($d, $row) {
                     return $d;
                 },
             ],
-            ['db'  => 'm_pono', 'dt' => 4,
+            ['db'       => 'm_pono', 'dt' => 4,
                 'formatter' => function ($d, $row) {
                     return $d;
                 },
             ],
-            ['db'  => 'item_details', 'dt' => 5,
+            ['db'       => 'item_details', 'dt' => 5,
                 'formatter' => function ($d, $row) {
                     return strlen($d) > 40 ? substr($d, 0, 40) . ".." : $d;
                 },
             ],
-            ['db'  => 'm_formno', 'dt' => 6,
+            ['db'       => 'm_formno', 'dt' => 6,
                 'formatter' => function ($d, $row) {
                     return number_format(sumPriceByFormno($d), 3);
                 },
             ],
-            ['db'  => 'm_department', 'dt' => 7,
+            ['db'       => 'm_department', 'dt' => 7,
                 'formatter' => function ($d, $row) {
                     return $d;
                 },
             ],
-            ['db'  => 'm_ecode', 'dt' => 8,
+            ['db'       => 'm_ecode', 'dt' => 8,
                 'formatter' => function ($d, $row) {
                     return $d;
                 },
             ],
-            ['db'  => 'm_date_req', 'dt' => 9,
+            ['db'       => 'm_date_req', 'dt' => 9,
                 'formatter' => function ($d, $row) {
                     return condate_fromdb($d);
                 },
             ],
             ['db' => 'm_vendid', 'dt' => 10],
             ['db' => 'm_vendname', 'dt' => 11],
-            ['db'  => 'm_date_delivery', 'dt' => 12,
+            ['db'       => 'm_date_delivery', 'dt' => 12,
                 'formatter' => function ($d, $row) {
                     return condate_fromdb($d);
                 },
             ],
-            ['db'  => 'm_status', 'dt' => 13,
+            ['db'       => 'm_status', 'dt' => 13,
                 'formatter' => function ($d, $row) {
                     $color = "";
                     if ($d == "Wait Send Data") { //สีเหลือง
@@ -1190,7 +1262,7 @@ class Mainapi_model extends CI_Model
             $arsaveCancel = [
                 "m_status"         => "User Cancel",
                 "m_datetimeupdate" => date("Y-m-d H:i:s"),
-                "m_compare_formno" => null
+                "m_compare_formno" => null,
             ];
             $this->db->where("m_formno", $formno);
             $this->db->update("main", $arsaveCancel);
