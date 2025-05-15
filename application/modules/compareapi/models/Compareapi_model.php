@@ -307,14 +307,14 @@ class Compareapi_model extends CI_Model
         $filterStatus    = $request['filter_status'] ?? '';
 
         $columns = [
-            'formno',
-            'pu_formno',
-            'items_all',
-            'vendor_name',
-            'ecode_create',
-            'datetime_create',
-            'deptcode_create',
-            'compare_status',
+            'm.formno',          // 0  เลขที่เอกสาร
+            'm.pr_number',       // 1  (หรือ m.pu_formno ถ้าจะค้นจาก pu_formno)
+            'items_all',         // 2  GROUP_CONCAT
+            'v.vendor_name',     // 3  ผู้ขาย
+            'm.ecode_create',    // 4  ผู้ร้องขอ
+            'm.deptcode_create', // 5  แผนก
+            'datetime_create',   // 6  วันที่   (ใช้ alias เหมือน SELECT)
+            'm.compare_status',  // 7  สถานะ
         ];
         $orderBy = $columns[$orderColumn];
 
@@ -375,19 +375,19 @@ class Compareapi_model extends CI_Model
         }
 
         // เงื่อนไขค้นหาทั่วไป
-        if (! empty($search)) {
-            $baseSQL .= " AND (
-                m.formno LIKE ? OR
-                v.vendor_name LIKE ? OR
-                i.itemdetail LIKE ? OR
-                m.ecode_create LIKE ? OR
-                m.deptcode_create LIKE ? OR
-                m.compare_status LIKE ?
-            )";
-            for ($i = 0; $i < 6; $i++) {
-                $params[] = "%{$search}%";
-            }
-        }
+        // if (! empty($search)) {
+        //     $baseSQL .= " AND (
+        //         m.formno LIKE ? OR
+        //         v.vendor_name LIKE ? OR
+        //         i.itemdetail LIKE ? OR
+        //         m.ecode_create LIKE ? OR
+        //         m.deptcode_create LIKE ? OR
+        //         m.compare_status LIKE ?
+        //     )";
+        //     for ($i = 0; $i < 6; $i++) {
+        //         $params[] = "%{$search}%";
+        //     }
+        // }
 
         $baseSQL .=" AND i.no_quoted = 0";
 
@@ -428,7 +428,7 @@ class Compareapi_model extends CI_Model
             $data[] = [
                 'formno'          => $row->formno,
                 'pu_formno'       => $row->pu_formno,
-                'pr_number'       => $row->pr_number,
+                'pr_number'       => getPrNoFromPurchase($row->pu_formno , $row->dataareaid),
                 'items_all'       => $row->items_all,
                 'vendorname'      => $row->vendor_name,
                 'ecode_create'    => $row->ecode_create,

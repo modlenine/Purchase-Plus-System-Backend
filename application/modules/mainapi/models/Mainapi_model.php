@@ -434,13 +434,15 @@ private function removeCompanyPrefix($name)
             //Head
 
             //update Compare Status
-            $this->db_compare->where("formno", $compare_formno);
-            $this->db_compare->update("compare_master", [
-                "compare_status" => "Compare Used",
-                "pu_formno"      => $formno,
-                "pr_number"      => $prno,
-                "last_updated"   => date("Y-m-d H:i:s"),
-            ]);
+            if($compare_formno != ""){
+                $this->db_compare->where("formno", $compare_formno);
+                $this->db_compare->update("compare_master", [
+                    "compare_status" => "Compare Used",
+                    "pu_formno"      => $formno,
+                    "pr_number"      => $prno,
+                    "last_updated"   => date("Y-m-d H:i:s"),
+                ]);
+            }
 
             // Detail
             $itemdata = json_decode($this->input->post("itemdata"), true);
@@ -558,6 +560,14 @@ private function removeCompanyPrefix($name)
                         "m_invest_ecodefix"     => $m_invest_ecodefix,
                         "m_compare_formno"      => $compare_formno,
                     ];
+
+                    $arcompare = [
+                        "compare_status" => "Compare Used",
+                        "pu_formno"      => $formno,
+                        "pr_number"      => $oldprno,
+                        "last_updated"   => date("Y-m-d H:i:s"),
+                    ];
+
                 } else {
                     $arsaveHead = [
                         "m_prcode"              => $prcode,
@@ -585,6 +595,13 @@ private function removeCompanyPrefix($name)
                         "m_version_status"      => "active",
                         "m_invest_ecodefix"     => $m_invest_ecodefix,
                         "m_compare_formno"      => $compare_formno,
+                    ];
+
+                    $arcompare = [
+                        "compare_status" => "Compare Used",
+                        "pu_formno"      => $formno,
+                        "pr_number"      => $prno,
+                        "last_updated"   => date("Y-m-d H:i:s"),
                     ];
                 }
             } else if ($sqlcheckformcode->row()->m_dataareaid != $dataareaid) {
@@ -616,6 +633,13 @@ private function removeCompanyPrefix($name)
                     "m_invest_ecodefix"     => $m_invest_ecodefix,
                     "m_compare_formno"      => $compare_formno,
                 ];
+                
+                $arcompare = [
+                    "compare_status" => "Compare Used",
+                    "pu_formno"      => $formno,
+                    "pr_number"      => $prno,
+                    "last_updated"   => date("Y-m-d H:i:s"),
+                ];
             }
 
             $this->db->where("m_formno", $formno);
@@ -624,12 +648,7 @@ private function removeCompanyPrefix($name)
 
             //update compare status new
             $this->db_compare->where('formno', $compare_formno);
-            $this->db_compare->update('compare_master', [
-                "compare_status" => "Compare Used",
-                "pu_formno"      => $formno,
-                "pr_number"      => $prno,
-                "last_updated"   => date("Y-m-d H:i:s"),
-            ]);
+            $this->db_compare->update('compare_master', $arcompare);
 
             // Detail
             // Delete data

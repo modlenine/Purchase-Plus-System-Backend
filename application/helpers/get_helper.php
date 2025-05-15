@@ -474,6 +474,18 @@ function getdataforemail_compare($compare_id){
     }
 }
 
+function getPrNoFromPurchase($puformno , $dataareaid)
+{
+    if($puformno != "" && $dataareaid != ""){
+        $sql = getfn()->db->query("SELECT
+        m_prno
+        FROM main WHERE m_formno = ? AND m_dataareaid = ?
+        " , [$puformno , $dataareaid]);
+
+        return $sql->row()->m_prno;
+    }
+}
+
 
 
 
