@@ -32,7 +32,32 @@ class Login_model extends CI_Model {
             $pass = mysqli_real_escape_string($this->escape_string(), md5($password));
 
             // Check ว่าเป็นการ Login ของ Vender หรือว่า พนักงาน
-            $sql = $this->db2->query(sprintf("SELECT * FROM member WHERE username='%s' AND password='%s' ", $user, $pass));
+            $sql = $this->db2->query(sprintf("SELECT
+                member.mid,
+                member.username,
+                member.Fname,
+                member.Lname,
+                member.Tname,
+                member.TLname,
+                member.ecode,
+                member.Dept,
+                member.DeptCode,
+                member.SubDeptCode,
+                member.memberemail,
+                member.adding_by,
+                member.subdate,
+                member.edit_by,
+                member.lastedit,
+                member.posi,
+                member.ipphoneNumber,
+                member.spacial,
+                member.resigned,
+                member.resignedDate,
+                member.file_img,
+                member.areaid
+                FROM
+                member
+                WHERE username='%s' AND password='%s' ", $user, $pass));
             if ($sql->num_rows() == 0) {
                 $output = array(
                     "msg" => "ไม่พบข้อมูลผู้ใช้งานในระบบ",
@@ -41,7 +66,6 @@ class Login_model extends CI_Model {
             } else {
                 foreach ($sql->result_array() as $r) {
                     $_SESSION['username'] = $r['username'];
-                    $_SESSION['password'] = $r['password'];
                     $_SESSION['Fname'] = $r['Fname'];
                     $_SESSION['Lname'] = $r['Lname'];
                     $_SESSION['Dept'] = $r['Dept'];

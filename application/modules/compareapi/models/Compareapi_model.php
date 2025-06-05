@@ -701,6 +701,13 @@ class Compareapi_model extends CI_Model
 
     public function saveManagerApprove($data)
     {
+        $notifyformno = $data['formno'];
+        $notifyprogramname = "Purchase Plus";
+        $notifystatus = "action done";
+        $notifytype = "take action";
+
+        $this->notifycenter->updatedataAction_template($notifyformno , $notifyprogramname , $notifystatus , $notifytype);
+
         // ตรวจสอบ approval_status เพื่อตั้งค่า compare_status
         $compare_status = ($data['approval_status'] === 'yes')
         ? 'Compare Approved'
