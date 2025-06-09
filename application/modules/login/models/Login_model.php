@@ -106,6 +106,56 @@ class Login_model extends CI_Model {
       
         echo json_encode($output);
     }
+
+    public function checksession() {
+        header('Content-Type: application/json');
+        if ($this->session->userdata('ecode')) {
+            $ecode = $this->session->userdata('ecode');
+            $this->db2 = $this->load->database('saleecolour', TRUE);
+
+            $sql = $this->db2->query("SELECT
+                member.mid,
+                member.username,
+                member.Fname,
+                member.Lname,
+                member.Tname,
+                member.TLname,
+                member.ecode,
+                member.Dept,
+                member.DeptCode,
+                member.SubDeptCode,
+                member.memberemail,
+                member.adding_by,
+                member.subdate,
+                member.edit_by,
+                member.lastedit,
+                member.posi,
+                member.ipphoneNumber,
+                member.spacial,
+                member.resigned,
+                member.resignedDate,
+                member.file_img,
+                member.areaid
+                FROM
+                member
+                WHERE member.ecode = ?" , [$ecode]);
+
+            $uri = isset($_SESSION['RedirectKe']) ? $_SESSION['RedirectKe'] : '/intsys/purchaseplus';
+
+            echo json_encode([
+                "sessionActive" => true,
+                "uri" => $uri,
+                "session_data" => $sql->row_array(),
+                "loginexpire" => strtotime('+4 hour'),
+                "loginexpire_con" => date("Y-m-d H:i:s" , strtotime('+4 hour')),
+                // "timeExpire" => strtotime('+120 seconds'),
+                "timeNow" => strtotime('now'),
+                "timeNow_con" => date("Y-m-d H:i:s" , strtotime('now'))
+            ]);
+        } else {
+            echo json_encode(['sessionActive' => false]);
+        }
+    }
 }
 
 /* End of file ModelName.php */

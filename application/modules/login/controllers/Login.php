@@ -21,6 +21,10 @@ class Login extends MX_Controller {
         $this->login->checklogin();
     }
 
+    public function checksession() {
+        $this->login->checksession();
+    }
+
 }
 
 /* End of file Controllername.php */
