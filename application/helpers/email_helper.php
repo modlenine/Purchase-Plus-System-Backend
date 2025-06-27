@@ -270,6 +270,12 @@ function getemail_managerbydeptcode($deptcode , $areaid)
             memberemail , ecode
             FROM member WHERE ecode = 'M0025'
             ");
+        }else if($deptcode == 1010){ //ถ้าเป็น Plaing & CS ส่งหาพี่หนุ่ม
+            email()->db2 = email()->load->database('saleecolour', TRUE);
+            $sql = email()->db2->query("SELECT
+            memberemail , ecode
+            FROM member WHERE ecode IN ('M0040')
+            ");
         }else{
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
