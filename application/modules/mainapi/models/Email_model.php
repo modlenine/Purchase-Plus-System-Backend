@@ -293,7 +293,7 @@ class Email_model extends CI_Model {
         $ecodeccAr = array();
 
         //  Email Zone
-        $optionTo = getemail_managerbydeptcode($emaildata->m_department , $emaildata->m_dataareaid);//ดึงเอาเฉพาะ Email ของผ฿้จัดการขึ้นมา
+        $optionTo = getemail_managerbydeptcode($emaildata->m_department , $emaildata->m_dataareaid , $emaildata->m_itemcategory);//ดึงเอาเฉพาะ Email ของผ฿้จัดการขึ้นมา
         foreach($optionTo->result_array() as $rs){
             $to[] = $rs['memberemail'];
             $ecodeAr[] = $rs['ecode'];

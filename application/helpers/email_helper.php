@@ -228,7 +228,7 @@ function getemail_bydeptcode($deptcode)
     }
 }
 
-function getemail_managerbydeptcode($deptcode , $areaid)
+function getemail_managerbydeptcode($deptcode , $areaid , $m_itemcategory = "")
 {
     if(!empty($deptcode)){
         if($deptcode == 1007){
@@ -275,10 +275,16 @@ function getemail_managerbydeptcode($deptcode , $areaid)
             ");
         }else if($deptcode == 1010){ //ถ้าเป็น Plaing & CS ส่งหาพี่นิต
             email()->db2 = email()->load->database('saleecolour', TRUE);
-            $sql = email()->db2->query("SELECT
-            memberemail , ecode
-            FROM member WHERE ecode IN ('M0025')
-            ");
+            if($m_itemcategory == "raw_materials"){
+                $sql = email()->db2->query("SELECT
+                memberemail , ecode
+                FROM member WHERE ecode IN ('M0040') ");
+            }else{
+                $sql = email()->db2->query("SELECT
+                memberemail , ecode
+                FROM member WHERE ecode IN ('M0025') ");
+            }
+
         }else if($deptcode == 1011){ //ถ้าเป็น SD ส่งหาพี่เหน่ง
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
