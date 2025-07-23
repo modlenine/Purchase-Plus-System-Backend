@@ -232,13 +232,13 @@ function getemail_managerbydeptcode($deptcode , $areaid)
 {
     if(!empty($deptcode)){
         if($deptcode == 1007){
-            if($areaid == "tb"){
+            if($areaid == "tb"){ //ยังไม่ได้ใช้งาน
                 email()->db2 = email()->load->database('saleecolour', TRUE);
                 $sql = email()->db2->query("SELECT
                 memberemail , ecode
                 FROM member WHERE areaid = 'tb' AND resigned = 0
                 ");
-            }else if($areaid == "st"){
+            }else if($areaid == "st"){//ยังไม่ได้ใช้งาน
                 email()->db2 = email()->load->database('saleecolour', TRUE);
                 $sql = email()->db2->query("SELECT
                 memberemail , ecode
@@ -248,8 +248,9 @@ function getemail_managerbydeptcode($deptcode , $areaid)
                 email()->db2 = email()->load->database('saleecolour', TRUE);
                 $sql = email()->db2->query("SELECT
                 memberemail , ecode
-                FROM member WHERE ecode IN ('M0506' , 'M0040')
+                FROM member WHERE ecode IN ('M0040')
                 ");
+                //ส่งให้พี่หนุ่มคนเดียว
             }
 
         }else if($deptcode == 1001){
@@ -258,23 +259,31 @@ function getemail_managerbydeptcode($deptcode , $areaid)
             memberemail , ecode
             FROM member WHERE ecode = 'M0963'
             ");
+            //ส่งให้พี่ภพ
         }else if($deptcode == 1008 || $deptcode == 1014 || $deptcode == 1015){
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
             memberemail , ecode
             FROM member WHERE ecode = 'M0112'
             ");
+            //Lab ทั้งหลายส่งให้พี่ยูง
         }else if($deptcode == 1012){
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
             memberemail , ecode
             FROM member WHERE ecode = 'M0025'
             ");
-        }else if($deptcode == 1010){ //ถ้าเป็น Plaing & CS ส่งหาพี่หนุ่ม
+        }else if($deptcode == 1010){ //ถ้าเป็น Plaing & CS ส่งหาพี่นิต
             email()->db2 = email()->load->database('saleecolour', TRUE);
             $sql = email()->db2->query("SELECT
             memberemail , ecode
-            FROM member WHERE ecode IN ('M0040')
+            FROM member WHERE ecode IN ('M0025')
+            ");
+        }else if($deptcode == 1011){ //ถ้าเป็น SD ส่งหาพี่เหน่ง
+            email()->db2 = email()->load->database('saleecolour', TRUE);
+            $sql = email()->db2->query("SELECT
+            memberemail , ecode
+            FROM member WHERE ecode IN ('M0015')
             ");
         }else{
             email()->db2 = email()->load->database('saleecolour', TRUE);
