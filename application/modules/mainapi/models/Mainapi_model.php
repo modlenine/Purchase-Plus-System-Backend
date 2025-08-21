@@ -326,11 +326,8 @@ private function removeCompanyPrefix($name)
                 itm.itemid LIKE '%$itemid%'
                 AND itm.dataareaid = '$areaid'
                 AND itm.slc_itemactivestatusid = 0
-                AND itmm.moduletype = (
-                    SELECT MAX(moduletype)
-                    FROM INVENTTABLEMODULE
-                    WHERE itemid = itm.itemid AND dataareaid = itm.dataareaid
-                )"
+                AND itmm.moduletype = 1
+                "
             );
 
             $output = [
